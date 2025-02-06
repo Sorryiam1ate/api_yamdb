@@ -1,6 +1,5 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-
 from .views import (CommentViewSet, CategoryViewSet,
                     GenreViewSet, ReviewViewSet, TitleViewSet)
 
@@ -17,5 +16,6 @@ router_v1.register(
 )
 
 urlpatterns = [
-    path('v1/', include(router_v1.urls))
+    path('v1/', include(router_v1.urls)),
+    path('v1/', include('users.urls')),
 ]
