@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 from .constants import DISPLAYED_TEXT
 
@@ -20,21 +21,26 @@ class Genre(models.Model):
 
 
 class Review(models.Model):
-    text = models.TextField()
+    text = models.TextField('Текст отзыва')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='reviews'
     )
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE, related_name='reviews'
     )
-    score = models.IntegerField()
+    score = models.PositiveSmallIntegerField(
+        validators=[
+            MaxValueValidator(10),
+            MinValueValidator(0)
+        ]
+    )
     pub_date = models.DateTimeField(
         'Дата публикации', auto_now_add=True, db_index=True
     )
 
 
 class Comment(models.Model):
-    text = models.TextField()
+    text = models.TextField('Текст комментария')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='comments'
     )
