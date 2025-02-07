@@ -2,15 +2,7 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 from .constants import DISPLAYED_TEXT
-
-
-class User(models.Model):
-    username = models.CharField(max_length=150, unique=True)
-    email = models.EmailField(max_length=254, unique=True)
-    role = models.CharField(max_length=50, null=True, default="user")
-    bio = models.CharField(max_length=150, null=True)
-    first_name = models.CharField(max_length=150, null=True)
-    last_name = models.CharField(max_length=150, null=True)
+from users.models import User
 
 
 class Category(models.Model):
