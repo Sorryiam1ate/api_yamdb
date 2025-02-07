@@ -1,5 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
+from rest_framework.pagination import PageNumberPagination
+from users.permissions import AdminOrReadOnly
 
 from api.serializers import (
     CommentSerializer,
@@ -17,6 +19,7 @@ from rest_framework import mixins
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
+    permission_classes = [AdminOrReadOnly,]
 
 
 class CategoryViewSet(
@@ -27,6 +30,7 @@ class CategoryViewSet(
 ):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    pagination_class = PageNumberPagination
 
 
 class GenreViewSet(

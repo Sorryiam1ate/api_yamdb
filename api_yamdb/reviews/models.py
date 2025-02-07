@@ -15,6 +15,16 @@ class Category(models.Model):
     )
 
 
+class Genre(models.Model):
+    name = models.CharField(
+        max_length=50,
+        verbose_name="Название Жанра"
+    )
+    slug = models.SlugField(
+        unique=True
+    )
+
+
 class Title(models.Model):
     name = models.CharField(
         max_length=200,
@@ -28,15 +38,14 @@ class Title(models.Model):
         on_delete=models.CASCADE,
         related_name='review'
     )
-
-
-class Genre(models.Model):
-    name = models.CharField(
-        max_length=50,
-        verbose_name="Название Жанра"
+    description = models.TextField(
+        'Описание',
+        null=True,
     )
-    slug = models.SlugField(
-        unique=True
+    genre = models.ManyToManyField(
+        Genre,
+        related_name='titles',
+        through='Genre_title',
     )
 
 
