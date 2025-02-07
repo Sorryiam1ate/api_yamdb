@@ -4,13 +4,16 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from .models import User
 from .validators import validate_username, validate_email
+from django.core.validators import RegexValidator
 
 
 class SignUpSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(max_length=254, allow_blank=False,
-                                   validators=[validate_email])
-    # username = serializers.CharField(max_length=150, allow_blank=False,
-    #                                  validators=[validate_username])
+    email = serializers.EmailField(max_length=254, allow_blank=False)
+    username = serializers.CharField(max_length=150, allow_blank=False,
+                                     validators=(
+                                         validate_username,
+                                         RegexValidator(regex=r'^[\w.@+-]+\Z')
+                                     ))
 
     class Meta:
         model = User
@@ -25,22 +28,17 @@ class TokenSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'confirmation_code')
 
-    # def validate(self, data):
-    #     user = get_object_or_404(User, username=data['username'])
-    #     confirmation_code = default_token_generator.make_token(user)
-    #     print(confirmation_code)
-    #     if str(confirmation_code) != data['confirmation_code']:
-    #         raise ValidationError('Неверный код подтверждения')
-    #     return data
-
 
 class CustomUserSerializer(serializers.ModelSerializer):
-    # email = serializers.EmailField(max_length=254, allow_blank=False,
-    #                                validators=[validate_email])
+    email = serializers.EmailField(max_length=254, allow_blank=False)
     username = serializers.CharField(max_length=150, allow_blank=False,
-                                     validators=[validate_username])
+                                     validators=(
+                                         validate_username,
+                                         RegexValidator(regex=r'^[\w.@+-]+\Z')
+                                     ))
 
     class Meta:
         model = User
         fields = ('email', 'username', 'first_name',
                   'last_name', 'bio', 'role')
+        read_only_fields = ('username', 'role')

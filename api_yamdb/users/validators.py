@@ -5,9 +5,6 @@ from .models import User
 def validate_username(value):
     if value == 'me':
         raise ValidationError('Недопустимое имя пользователя!')
-    elif User.objects.filter(username=value).exists():
-        raise ValidationError('Пользователь с таким именем '
-                              'уже зарегестрирован')
 
 
 def validate_email(value):

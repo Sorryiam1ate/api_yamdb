@@ -60,20 +60,19 @@ def token(request):
 
 
 class UsersViewSet(viewsets.ModelViewSet):
-    print('\nUsersViewSet\n')
     queryset = User.objects.all()
-    # lookup_field = 'username'
+    lookup_field = 'username'
     serializer_class = CustomUserSerializer
     # filter_backends = (filters.SearchFilter,)
-    # search_fields = ('username',)
+    search_fields = ('username',)
     # pagination_class = PageNumberPagination
-    # permission_classes = (AdminOnly,)
+    permission_classes = (AdminOnly,)
 
     @action(detail=False, methods=['get', 'patch'],
-            permission_classes=(OnlyOwnAccount, IsAuthenticated))
+            permission_classes=(AdminOnly, OnlyOwnAccount), url_path='me')
     def me(self, request):
-        print('\n ME \n')
-        user = get_object_or_404(User, username=self.request.user.username)
+        print(f'Request = {self.request.user.__dict__}')
+        user = get_object_or_404(User, id=self.request.user.id)
         if request.method == 'GET':
             serializer = self.get_serializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -86,3 +85,14 @@ class UsersViewSet(viewsets.ModelViewSet):
             else:
                 serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class MeViewSet(viewsets.ModelViewSet):
+    # queryset = User.objects.all()
+    lookup_field = 'username'
+    serializer_class = CustomUserSerializer
+
+    def get(self, request):
+        user = get_object_or_404(User, username=self.request.user.username)
+        serializer = self.get_serializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)

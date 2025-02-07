@@ -1,4 +1,8 @@
 from rest_framework import permissions
+from .models import User
+
+
+user = User.objects.all()
 
 
 class AdminOrReadOnly(permissions.BasePermission):
@@ -7,28 +11,28 @@ class AdminOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         if request.user.is_authenticated:
-            return request.user.is_admin
+            return (
+                User.objects.get(pk=request.user.id).is_admin
+                or User.objects.get(pk=request.user.id).is_superuser
+            )
         return False
 
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return request.user.is_admin
+        return (
+            User.objects.get(pk=request.user.id).is_admin
+            or User.objects.get(pk=request.user.id).is_superuser
+        )
 
 
 class AdminOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.user.is_authenticated:
-            return (request.user.is_admin
-                    or request.user.is_staff is True
-                    or request.user.is_superuser is True)
-        return False
-
-    def has_permission(self, request, view):
-        if request.user.is_authenticated:
-            return (request.user.is_admin
-                    or request.user.is_staff is True
-                    or request.user.is_superuser is True)
+            return (
+                User.objects.get(pk=request.user.id).is_admin
+                or User.objects.get(pk=request.user.id).is_superuser
+            )
         return False
 
 
@@ -43,7 +47,12 @@ class IsAuthorOrModerOrAdmin(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         if request.user.is_authenticated:
-            return True
+            return (
+                User.objects.get(pk=request.user.id).is_admin
+                or User.objects.get(pk=request.user.id).is_moderator
+                or (User.objects.get(pk=request.user.id).is_user
+                    and request.user == User.objects.get(pk=request.user.id).id)
+            )
         return False
 
     def has_object_permission(self, request, view, obj):
@@ -51,8 +60,9 @@ class IsAuthorOrModerOrAdmin(permissions.BasePermission):
             return True
         if request.user.is_authenticated:
             return (
-                request.user.is_admin or request.user.is_moderator
-                or (request.user.is_user
+                User.objects.get(pk=request.user.id).is_admin
+                or User.objects.get(pk=request.user.id).is_moderator
+                or (User.objects.get(pk=request.user.id).is_user
                     and request.user == obj.author)
             )
         return False

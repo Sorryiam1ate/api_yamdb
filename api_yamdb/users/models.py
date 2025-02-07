@@ -17,6 +17,7 @@ class User(AbstractUser):
         'Биография',
         blank=True,
     )
+
     role = models.CharField('Роль', max_length=20,
                             choices=CHOISES, default='user')
 

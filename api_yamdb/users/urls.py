@@ -1,16 +1,21 @@
-from django.urls import path
+from django.urls import include, path
+from rest_framework.routers import SimpleRouter
 from rest_framework_simplejwt.views import TokenVerifyView
-from .views import UsersViewSet, signup, token
+from .views import MeViewSet, UsersViewSet, signup, token
 
+
+router_v1 = SimpleRouter()
+router_v1.register(r'users', UsersViewSet, basename='users')
+print(router_v1.urls)
 
 urlpatterns = [
     path('auth/signup/', signup),
     path('auth/token/', token),
     path(
-        'api/v1/token/verify/',
+        'token/verify/',
         TokenVerifyView.as_view(),
         name='token_verify'
     ),
-    # path('users', ),
-    path('users/me/', UsersViewSet),
+    # path('users/me/', MeViewSet),
+    path('', include(router_v1.urls)),
 ]
