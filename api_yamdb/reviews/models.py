@@ -1,14 +1,8 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-
-class User(models.Model):
-    username = models.CharField(max_length=150, unique=True)
-    email = models.EmailField(max_length=254, unique=True)
-    role = models.CharField(max_length=50, null=True, default="user")
-    bio = models.CharField(max_length=150, null=True)
-    first_name = models.CharField(max_length=150, null=True)
-    last_name = models.CharField(max_length=150, null=True)
+from .constants import DISPLAYED_TEXT
+from users.models import User
 
 
 class Category(models.Model):
@@ -47,18 +41,12 @@ class Genre(models.Model):
 
 
 class Review(models.Model):
-    title = models.ForeignKey(
-        Title,
-        on_delete=models.CASCADE,
-        related_name="review"
-    )
-    text = models.TextField(
-        verbose_name="Текст ревью"
-    )
+    text = models.TextField('Текст отзыва')
     author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='review'
+        User, on_delete=models.CASCADE, related_name='reviews'
+    )
+    title = models.ForeignKey(
+        Title, on_delete=models.CASCADE, related_name='reviews'
     )
     score = models.PositiveSmallIntegerField(
         validators=[
@@ -67,27 +55,24 @@ class Review(models.Model):
         ]
     )
     pub_date = models.DateTimeField(
-        'Дата публикации', auto_now_add=True
+        'Дата публикации', auto_now_add=True, db_index=True
     )
 
 
 class Comment(models.Model):
-    review = models.ForeignKey(
-        Review,
-        on_delete=models.CASCADE,
-        related_name="comments"
-    )
-    text = models.TextField(
-        verbose_name="Текст комментария"
-    )
+    text = models.TextField('Текст комментария')
     author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='comment'
+        User, on_delete=models.CASCADE, related_name='comments'
+    )
+    review = models.ForeignKey(
+        Review, on_delete=models.CASCADE, related_name='comments'
     )
     pub_date = models.DateTimeField(
-        'Дата публикации'
+        'Дата публикации', auto_now_add=True, db_index=True
     )
+
+    def __str__(self):
+        return self.text[:DISPLAYED_TEXT]
 
 
 class Genre_title(models.Model):

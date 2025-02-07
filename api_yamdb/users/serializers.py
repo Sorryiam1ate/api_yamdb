@@ -1,7 +1,5 @@
 from django.contrib.auth.tokens import default_token_generator
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 from .models import User
 from .validators import validate_username, validate_email
 from django.core.validators import RegexValidator
