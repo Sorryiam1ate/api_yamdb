@@ -19,6 +19,24 @@ class SignUpSerializer(serializers.ModelSerializer):
         model = User
         fields = ('email', 'username')
 
+    def validate(self, data):
+        print(data, User.objects.filter(email=data['email']).exists)
+        if (
+            not User.objects.filter(username=data['username']).exists()
+            and User.objects.filter(email=data['email']).exists()
+        ):
+            raise serializers.ValidationError(
+                'Пользователь с такой почтой '
+                'уже зарегестрирован')
+        if (
+            User.objects.filter(username=data['username']).exists()
+            and not User.objects.filter(email=data['email']).exists()
+        ):
+            raise serializers.ValidationError(
+                'Пользователь с таким именем '
+                'уже зарегестрирован')
+        return data
+
 
 class TokenSerializer(serializers.ModelSerializer):
     confirmation_code = serializers.CharField(allow_blank=False)
