@@ -1,16 +1,39 @@
 from rest_framework import viewsets
 
+from api.serializers import (
+    TitleSerializer,
+    CategorySerializer,
+    GenreSerializer,
+)
+
+from reviews.models import Title, Category, Genre
+
+from rest_framework import mixins
+
 
 class TitleViewSet(viewsets.ModelViewSet):
-    pass
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
-    pass
+class CategoryViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet
+):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
 
-class GenreViewSet(viewsets.ModelViewSet):
-    pass
+class GenreViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet
+):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
