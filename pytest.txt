@@ -1,0 +1,1179 @@
+============================= test session starts =============================
+platform win32 -- Python 3.9.13, pytest-6.2.4, py-1.11.0, pluggy-1.0.0.dev0 -- C:\Dev\api_yamdb\venv\Scripts\python.exe
+django: settings: api_yamdb.settings (from ini)
+rootdir: C:\Dev\api_yamdb, configfile: pytest.ini, testpaths: tests/
+plugins: django-4.4.0, pythonpath-0.7.3
+collecting ... collected 80 items / 45 deselected / 35 selected
+
+tests/test_01_users.py::Test01UserAPI::test_01_users_not_authenticated PASSED [  2%]
+tests/test_01_users.py::Test01UserAPI::test_02_users_username_not_authenticated PASSED [  5%]
+tests/test_01_users.py::Test01UserAPI::test_03_users_me_not_authenticated PASSED [  8%]
+tests/test_01_users.py::Test01UserAPI::test_04_users_get_admin PASSED    [ 11%]
+tests/test_01_users.py::Test01UserAPI::test_04_02_users_get_search FAILED [ 14%]
+tests/test_01_users.py::Test01UserAPI::test_04_01_users_get_admin_only PASSED [ 17%]
+tests/test_01_users.py::Test01UserAPI::test_05_01_users_post_admin_bad_requests FAILED [ 20%]
+tests/test_01_users.py::Test01UserAPI::test_05_02_users_post_admin_user_creation[data0-] PASSED [ 22%]
+tests/test_01_users.py::Test01UserAPI::test_05_02_users_post_admin_user_creation[data1-без указания роли нового пользователя ] PASSED [ 25%]
+tests/test_01_users.py::Test01UserAPI::test_05_03_users_post_response_has_data FAILED [ 28%]
+tests/test_01_users.py::Test01UserAPI::test_05_04_users_post_user_superuser PASSED [ 31%]
+tests/test_01_users.py::Test01UserAPI::test_06_users_username_get_admin PASSED [ 34%]
+tests/test_01_users.py::Test01UserAPI::test_06_users_username_get_not_admin PASSED [ 37%]
+tests/test_01_users.py::Test01UserAPI::test_07_01_users_username_patch_admin FAILED [ 40%]
+tests/test_01_users.py::Test01UserAPI::test_07_02_users_username_patch_moderator PASSED [ 42%]
+tests/test_01_users.py::Test01UserAPI::test_07_03_users_username_patch_user PASSED [ 45%]
+tests/test_01_users.py::Test01UserAPI::test_07_05_users_username_put_not_allowed FAILED [ 48%]
+tests/test_01_users.py::Test01UserAPI::test_08_01_users_username_delete_admin PASSED [ 51%]
+tests/test_01_users.py::Test01UserAPI::test_08_02_users_username_delete_moderator PASSED [ 54%]
+tests/test_01_users.py::Test01UserAPI::test_08_03_users_username_delete_user PASSED [ 57%]
+tests/test_01_users.py::Test01UserAPI::test_08_04_users_username_delete_superuser PASSED [ 60%]
+tests/test_01_users.py::Test01UserAPI::test_09_users_me_get FAILED       [ 62%]
+tests/test_01_users.py::Test01UserAPI::test_09_02_users_me_delete_not_allowed FAILED [ 65%]
+tests/test_01_users.py::Test01UserAPI::test_10_01_users_me_patch FAILED  [ 68%]
+tests/test_01_users.py::Test01UserAPI::test_10_02_users_me_has_field_validation[data0-messege0] FAILED [ 71%]
+tests/test_01_users.py::Test01UserAPI::test_10_02_users_me_has_field_validation[data1-messege1] FAILED [ 74%]
+tests/test_01_users.py::Test01UserAPI::test_10_02_users_me_has_field_validation[data2-messege2] FAILED [ 77%]
+tests/test_01_users.py::Test01UserAPI::test_10_02_users_me_has_field_validation[data3-messege3] FAILED [ 80%]
+tests/test_01_users.py::Test01UserAPI::test_10_02_users_me_has_field_validation[data4-messege4] FAILED [ 82%]
+tests/test_01_users.py::Test01UserAPI::test_10_03_users_me_patch_change_role_not_allowed FAILED [ 85%]
+tests/test_02_category.py::Test02CategoryAPI::test_01_category_not_auth FAILED [ 88%]
+tests/test_03_genre.py::Test03GenreAPI::test_01_genre_not_auth FAILED    [ 91%]
+tests/test_04_title.py::Test04TitleAPI::test_01_title_not_auth FAILED    [ 94%]
+tests/test_05_review.py::Test05ReviewAPI::test_01_review_not_auth FAILED [ 97%]
+tests/test_06_comment.py::Test06CommentAPI::test_01_comment_not_auth FAILED [100%]
+
+================================== FAILURES ===================================
+__________________ Test01UserAPI.test_04_02_users_get_search __________________
+
+self = <tests.test_01_users.Test01UserAPI object at 0x000002806F0DFAC0>
+user = <User: TestUser>
+admin_client = <rest_framework.test.APIClient object at 0x000002806F356A60>
+admin = <User: TestAdmin>, django_user_model = <class 'users.models.User'>
+
+    def test_04_02_users_get_search(self, user, admin_client,
+                                    admin, django_user_model):
+        search_url = f'{self.USERS_URL}?search={admin.username}'
+        response = admin_client.get(search_url)
+        assert response.status_code != HTTPStatus.NOT_FOUND, (
+            f'Эндпоинт `{self.USERS_URL}'
+            '?search={username}` не найден. Проверьте настройки в *urls.py*.'
+        )
+        reponse_json = response.json()
+        assert ('results' in reponse_json
+                and isinstance(reponse_json.get('results'), list)), (
+            f'Проверьте, что GET-запрос к `{self.USERS_URL}'
+            '?search={username}` возвращает результаты поиска по значению '
+            'ключа `results` в виде списка.'
+        )
+        users_count = (
+            django_user_model.objects.filter(username=admin.username).count()
+        )
+>       assert len(reponse_json['results']) == users_count, (
+            f'Проверьте, что GET-запрос к `{self.USERS_URL}'
+            '?search={username}` возвращает данные только тех пользователей, '
+            '`username` которых удовлетворяет условию поиска.'
+        )
+E       AssertionError: Проверьте, что GET-запрос к `/api/v1/users/?search={username}` возвращает данные только тех пользователей, `username` которых удовлетворяет условию поиска.
+E       assert 2 == 1
+E         +2
+E         -1
+
+tests\test_01_users.py:117: AssertionError
+___________ Test01UserAPI.test_05_01_users_post_admin_bad_requests ____________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x000002806F4440A0>
+sql = 'INSERT INTO "users_user" ("password", "last_login", "is_superuser", "username", "first_name", "last_name", "is_staff", "is_active", "date_joined", "email", "bio", "role") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = ['', None, False, 'TestUser_duplicate', '', '', ...]
+ignored_wrapper_args = (False, {'connection': <django.db.backends.sqlite3.base.DatabaseWrapper object at 0x000002806DEB22E0>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x000002806F4440A0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+
+venv\lib\site-packages\django\db\backends\utils.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x000002806F46A040>
+query = 'INSERT INTO "users_user" ("password", "last_login", "is_superuser", "username", "first_name", "last_name", "is_staff", "is_active", "date_joined", "email", "bio", "role") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+params = ['', None, False, 'TestUser_duplicate', '', '', ...]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       sqlite3.IntegrityError: UNIQUE constraint failed: users_user.email
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:423: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.test_01_users.Test01UserAPI object at 0x000002806F343AF0>
+admin_client = <rest_framework.test.APIClient object at 0x000002806F43C640>
+admin = <User: TestAdmin>
+
+    def test_05_01_users_post_admin_bad_requests(self, admin_client, admin):
+        empty_data = {}
+        response = admin_client.post(self.USERS_URL, data=empty_data)
+        assert response.status_code == HTTPStatus.BAD_REQUEST, (
+            f'Если POST-запрос администратора к `{self.USERS_URL}` '
+            'не содержит необходимых данных - должен вернуться ответ со '
+            'статусом 400.'
+        )
+    
+        no_email_data = {
+            'username': 'TestUser_noemail',
+            'role': 'user'
+        }
+        response = admin_client.post(self.USERS_URL, data=no_email_data)
+        assert response.status_code == HTTPStatus.BAD_REQUEST, (
+            f'Если POST-запрос администратора к `{self.USERS_URL}` '
+            'не содержит `email` - должен вернуться ответ со статусом 400.'
+        )
+    
+        no_username_data = {
+            'email': 'valid_email@yamdb.fake',
+            'role': 'user'
+        }
+        response = admin_client.post(self.USERS_URL, data=no_username_data)
+        assert response.status_code == HTTPStatus.BAD_REQUEST, (
+            f'Если POST-запрос администратора к `{self.USERS_URL}` '
+            ' не содержит `username` - должен вернуться ответ со статусом 400.'
+        )
+    
+        duplicate_email = {
+            'username': 'TestUser_duplicate',
+            'role': 'user',
+            'email': admin.email
+        }
+>       response = admin_client.post(self.USERS_URL, data=duplicate_email)
+
+tests\test_01_users.py:184: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\lib\site-packages\rest_framework\test.py:295: in post
+    response = super().post(
+venv\lib\site-packages\rest_framework\test.py:209: in post
+    return self.generic('POST', path, data, content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:233: in generic
+    return super().generic(
+venv\lib\site-packages\django\test\client.py:473: in generic
+    return self.request(**r)
+venv\lib\site-packages\rest_framework\test.py:285: in request
+    return super().request(**kwargs)
+venv\lib\site-packages\rest_framework\test.py:237: in request
+    request = super().request(**kwargs)
+venv\lib\site-packages\django\test\client.py:719: in request
+    self.check_exception(response)
+venv\lib\site-packages\django\test\client.py:580: in check_exception
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:47: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:181: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:125: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:509: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:469: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:480: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:506: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:19: in create
+    self.perform_create(serializer)
+venv\lib\site-packages\rest_framework\mixins.py:24: in perform_create
+    serializer.save()
+venv\lib\site-packages\rest_framework\serializers.py:205: in save
+    self.instance = self.create(validated_data)
+venv\lib\site-packages\rest_framework\serializers.py:939: in create
+    instance = ModelClass._default_manager.create(**validated_data)
+venv\lib\site-packages\django\db\models\manager.py:85: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:453: in create
+    obj.save(force_insert=True, using=self.db)
+venv\lib\site-packages\django\contrib\auth\base_user.py:67: in save
+    super().save(*args, **kwargs)
+venv\lib\site-packages\django\db\models\base.py:726: in save
+    self.save_base(using=using, force_insert=force_insert,
+venv\lib\site-packages\django\db\models\base.py:763: in save_base
+    updated = self._save_table(
+venv\lib\site-packages\django\db\models\base.py:868: in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+venv\lib\site-packages\django\db\models\base.py:906: in _do_insert
+    return manager._insert(
+venv\lib\site-packages\django\db\models\manager.py:85: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:1270: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv\lib\site-packages\django\db\models\sql\compiler.py:1410: in execute_sql
+    cursor.execute(sql, params)
+venv\lib\site-packages\django\db\backends\utils.py:66: in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+venv\lib\site-packages\django\db\backends\utils.py:75: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv\lib\site-packages\django\db\backends\utils.py:84: in _execute
+    return self.cursor.execute(sql, params)
+venv\lib\site-packages\django\db\utils.py:90: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv\lib\site-packages\django\db\backends\utils.py:84: in _execute
+    return self.cursor.execute(sql, params)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x000002806F46A040>
+query = 'INSERT INTO "users_user" ("password", "last_login", "is_superuser", "username", "first_name", "last_name", "is_staff", "is_active", "date_joined", "email", "bio", "role") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+params = ['', None, False, 'TestUser_duplicate', '', '', ...]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       django.db.utils.IntegrityError: UNIQUE constraint failed: users_user.email
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:423: IntegrityError
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:224 Bad Request: /api/v1/users/
+WARNING  django.request:log.py:224 Bad Request: /api/v1/users/
+WARNING  django.request:log.py:224 Bad Request: /api/v1/users/
+ERROR    django.request:log.py:224 Internal Server Error: /api/v1/users/
+Traceback (most recent call last):
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 84, in _execute
+    return self.cursor.execute(sql, params)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 423, in execute
+    return Database.Cursor.execute(self, query, params)
+sqlite3.IntegrityError: UNIQUE constraint failed: users_user.email
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 47, in inner
+    response = get_response(request)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 181, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 125, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 19, in create
+    self.perform_create(serializer)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 24, in perform_create
+    serializer.save()
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 205, in save
+    self.instance = self.create(validated_data)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 939, in create
+    instance = ModelClass._default_manager.create(**validated_data)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 85, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 453, in create
+    obj.save(force_insert=True, using=self.db)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\contrib\auth\base_user.py", line 67, in save
+    super().save(*args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 726, in save
+    self.save_base(using=using, force_insert=force_insert,
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 763, in save_base
+    updated = self._save_table(
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 868, in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 906, in _do_insert
+    return manager._insert(
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 85, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 1270, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\models\sql\compiler.py", line 1410, in execute_sql
+    cursor.execute(sql, params)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 66, in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 75, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 84, in _execute
+    return self.cursor.execute(sql, params)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\utils.py", line 90, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 84, in _execute
+    return self.cursor.execute(sql, params)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 423, in execute
+    return Database.Cursor.execute(self, query, params)
+django.db.utils.IntegrityError: UNIQUE constraint failed: users_user.email
+____________ Test01UserAPI.test_05_03_users_post_response_has_data ____________
+
+self = <tests.test_01_users.Test01UserAPI object at 0x0000028070E09040>
+admin_client = <rest_framework.test.APIClient object at 0x0000028070E05FA0>
+
+    def test_05_03_users_post_response_has_data(self, admin_client):
+        data = {
+            'first_name': 'First Name',
+            'last_name': 'Last Name',
+            'username': 'test_username',
+            'bio': 'test bio',
+            'role': 'moderator',
+            'email': 'testmoder2@yamdb.fake'
+        }
+        response = admin_client.post(self.USERS_URL, data=data)
+        assert response.status_code == HTTPStatus.CREATED, (
+            f'Если POST-запрос администратора к `{self.USERS_URL}` '
+            'содержит корректные данные - должен вернуться ответ со статусом '
+            '201.'
+        )
+        response_data = response.json()
+        expected_keys = (
+            'first_name', 'last_name', 'username', 'bio', 'role', 'email'
+        )
+        for key in expected_keys:
+>           assert response_data.get(key) == data[key], (
+                f'Если POST-запрос к `{self.USERS_URL}` содержит корректные '
+                'данные - в ответе должны содержаться данные нового '
+                f'пользователя. Сейчас ключ {key} отстутствует либо содержит '
+                'некорректные данные.'
+            )
+E           AssertionError: Если POST-запрос к `/api/v1/users/` содержит корректные данные - в ответе должны содержаться данные нового пользователя. Сейчас ключ role отстутствует либо содержит некорректные данные.
+E           assert 'user' == 'moderator'
+E             - moderator
+E             + user
+
+tests\test_01_users.py:246: AssertionError
+_____________ Test01UserAPI.test_07_01_users_username_patch_admin _____________
+
+self = <tests.test_01_users.Test01UserAPI object at 0x000002806F43C4C0>
+user = <User: TestUser>
+admin_client = <rest_framework.test.APIClient object at 0x000002806F6BEAF0>
+django_user_model = <class 'users.models.User'>
+
+    def test_07_01_users_username_patch_admin(self, user, admin_client,
+                                              django_user_model):
+        data = {
+            'first_name': 'Admin',
+            'last_name': 'Test',
+            'bio': 'description'
+        }
+        response = admin_client.patch(
+            f'{self.USERS_URL}{user.username}/', data=data
+        )
+        assert response.status_code == HTTPStatus.OK, (
+            'Если PATCH-запрос администратора, отправленный к '
+            f'`{self.USERS_URL}'
+            '{username}/`, содержит корректные данные - должен вернуться '
+            'ответ со статусом 200.'
+        )
+        user = django_user_model.objects.get(username=user.username)
+        for key in data:
+            assert getattr(user, key) == data[key], (
+                'Проверьте, что PATCH-запрос администратора к '
+                f'`{self.USERS_URL}'
+                '{username}/` может изменять данные другого пользователя.'
+            )
+    
+        response = admin_client.patch(
+            f'{self.USERS_URL}{user.username}/', data={'role': 'admin'}
+        )
+        assert response.status_code == HTTPStatus.OK, (
+            f'Проверьте, что PATCH-запрос администратора к `{self.USERS_URL}'
+            '{username}/` может изменить роль пользователя.'
+        )
+        response = admin_client.patch(
+            f'{self.USERS_URL}{user.username}/', data={'role': 'owner'}
+        )
+>       assert response.status_code == HTTPStatus.BAD_REQUEST, (
+            f'Если в PATCH-запросе администратора к `{self.USERS_URL}'
+            '{username}/` передана несуществующая роль - должен вернуться '
+            'ответ со статусом 400.'
+        )
+E       AssertionError: Если в PATCH-запросе администратора к `/api/v1/users/{username}/` передана несуществующая роль - должен вернуться ответ со статусом 400.
+E       assert 200 == <HTTPStatus.BAD_REQUEST: 400>
+E         +200
+E         -<HTTPStatus.BAD_REQUEST: 400>
+
+tests\test_01_users.py:349: AssertionError
+___________ Test01UserAPI.test_07_05_users_username_put_not_allowed ___________
+
+self = <tests.test_01_users.Test01UserAPI object at 0x000002806F1042E0>
+admin_client = <rest_framework.test.APIClient object at 0x000002806F0DF820>
+user = <User: TestUser>
+
+    def test_07_05_users_username_put_not_allowed(self, admin_client, user):
+        response = admin_client.put(
+            f'{self.USERS_URL}{user.username}/', data=self.PATCH_DATA
+        )
+>       assert response.status_code == HTTPStatus.METHOD_NOT_ALLOWED, (
+            f'Проверьте, что PUT-запрос к `{self.USERS_URL}'
+            '{username}/` не предусмотрен и возвращает статус 405.'
+        )
+E       AssertionError: Проверьте, что PUT-запрос к `/api/v1/users/{username}/` не предусмотрен и возвращает статус 405.
+E       assert 400 == <HTTPStatus.METHOD_NOT_ALLOWED: 405>
+E         +400
+E         -<HTTPStatus.METHOD_NOT_ALLOWED: 405>
+
+tests\test_01_users.py:412: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:224 Bad Request: /api/v1/users/TestUser/
+_____________________ Test01UserAPI.test_09_users_me_get ______________________
+
+self = <tests.test_01_users.Test01UserAPI object at 0x000002806F10D5E0>
+user_client = <rest_framework.test.APIClient object at 0x000002806F6D2970>
+user = <User: TestUser>
+
+    def test_09_users_me_get(self, user_client, user):
+        response = user_client.get(f'{self.USERS_ME_URL}')
+>       assert response.status_code == HTTPStatus.OK, (
+            'Проверьте, что GET-запрос обычного пользователя к '
+            f'`{self.USERS_ME_URL}` возвращает ответ со статусом 200.'
+        )
+E       AssertionError: Проверьте, что GET-запрос обычного пользователя к `/api/v1/users/me/` возвращает ответ со статусом 200.
+E       assert 403 == <HTTPStatus.OK: 200>
+E         +403
+E         -<HTTPStatus.OK: 200>
+
+tests\test_01_users.py:477: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:224 Forbidden: /api/v1/users/me/
+____________ Test01UserAPI.test_09_02_users_me_delete_not_allowed _____________
+
+self = <tests.test_01_users.Test01UserAPI object at 0x000002806F0B3A60>
+user_client = <rest_framework.test.APIClient object at 0x000002806F1A3580>
+user = <User: TestUser>, django_user_model = <class 'users.models.User'>
+
+    def test_09_02_users_me_delete_not_allowed(self, user_client, user,
+                                               django_user_model):
+        response = user_client.delete(f'{self.USERS_ME_URL}')
+>       assert response.status_code == HTTPStatus.METHOD_NOT_ALLOWED, (
+            f'Проверьте, что DELETE-запрос к `{self.USERS_ME_URL}` возвращает '
+            'ответ со статусом 405.'
+        )
+E       AssertionError: Проверьте, что DELETE-запрос к `/api/v1/users/me/` возвращает ответ со статусом 405.
+E       assert 403 == <HTTPStatus.METHOD_NOT_ALLOWED: 405>
+E         +403
+E         -<HTTPStatus.METHOD_NOT_ALLOWED: 405>
+
+tests\test_01_users.py:495: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:224 Forbidden: /api/v1/users/me/
+___________________ Test01UserAPI.test_10_01_users_me_patch ___________________
+
+self = <tests.test_01_users.Test01UserAPI object at 0x0000028070A783D0>
+django_user_model = <class 'users.models.User'>
+admin_client = <rest_framework.test.APIClient object at 0x0000028070A7AB50>
+admin = <User: TestAdmin>
+moderator_client = <rest_framework.test.APIClient object at 0x0000028070A7AC40>
+moderator = <User: TestModerator>
+user_client = <rest_framework.test.APIClient object at 0x0000028070A7A670>
+user = <User: TestModerator>
+
+    def test_10_01_users_me_patch(self, django_user_model, admin_client,
+                                  admin, moderator_client, moderator,
+                                  user_client, user):
+        data = {'bio': 'description'}
+    
+        for client, user in (
+                (admin_client, admin),
+                (moderator_client, moderator),
+                (user_client, user)
+        ):
+            response = client.patch(f'{self.USERS_ME_URL}', data=data)
+>           assert response.status_code == HTTPStatus.OK, (
+                'Проверьте, что PATCH-запрос к '
+                f'`{self.USERS_ME_URL}` доступен пользователям всех '
+                'ролей и возвращает ответ со статусом 200.'
+            )
+E           AssertionError: Проверьте, что PATCH-запрос к `/api/v1/users/me/` доступен пользователям всех ролей и возвращает ответ со статусом 200.
+E           assert 403 == <HTTPStatus.OK: 200>
+E             +403
+E             -<HTTPStatus.OK: 200>
+
+tests\test_01_users.py:518: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:224 Forbidden: /api/v1/users/me/
+___ Test01UserAPI.test_10_02_users_me_has_field_validation[data0-messege0] ____
+
+self = <tests.test_01_users.Test01UserAPI object at 0x0000028070A7A8E0>
+user_client = <rest_framework.test.APIClient object at 0x000002807084F190>
+data = {'email': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@yamdb.fake', 'username': 'valid-username'}
+messege = ('Проверьте, что при обработке {request_method}-запроса к `{url}` проверяется длина поля `email`: его содержимое не должно быть длиннее 254 символа.',)
+
+    @pytest.mark.parametrize(
+        'data,messege', invalid_data_for_user_patch_and_creation
+    )
+    def test_10_02_users_me_has_field_validation(self, user_client, data,
+                                                 messege):
+        request_method = 'PATCH'
+        response = user_client.patch(self.USERS_ME_URL, data=data)
+>       assert response.status_code == HTTPStatus.BAD_REQUEST, (
+            messege[0].format(
+                url=self.USERS_ME_URL,
+                request_method=request_method
+            )
+        )
+E       AssertionError: Проверьте, что при обработке PATCH-запроса к `/api/v1/users/me/` проверяется длина поля `email`: его содержимое не должно быть длиннее 254 символа.
+E       assert 403 == <HTTPStatus.BAD_REQUEST: 400>
+E         +403
+E         -<HTTPStatus.BAD_REQUEST: 400>
+
+tests\test_01_users.py:538: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:224 Forbidden: /api/v1/users/me/
+___ Test01UserAPI.test_10_02_users_me_has_field_validation[data1-messege1] ____
+
+self = <tests.test_01_users.Test01UserAPI object at 0x000002806F06AFA0>
+user_client = <rest_framework.test.APIClient object at 0x000002806F43FBB0>
+data = {'email': 'valid-email@yamdb.fake', 'username': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}
+messege = ('Проверьте, что при обработке {request_method}-запроса к `{url}` проверяется длина поля `username`: его содержимое не должно быть длиннее 150 символов.',)
+
+    @pytest.mark.parametrize(
+        'data,messege', invalid_data_for_user_patch_and_creation
+    )
+    def test_10_02_users_me_has_field_validation(self, user_client, data,
+                                                 messege):
+        request_method = 'PATCH'
+        response = user_client.patch(self.USERS_ME_URL, data=data)
+>       assert response.status_code == HTTPStatus.BAD_REQUEST, (
+            messege[0].format(
+                url=self.USERS_ME_URL,
+                request_method=request_method
+            )
+        )
+E       AssertionError: Проверьте, что при обработке PATCH-запроса к `/api/v1/users/me/` проверяется длина поля `username`: его содержимое не должно быть длиннее 150 символов.
+E       assert 403 == <HTTPStatus.BAD_REQUEST: 400>
+E         +403
+E         -<HTTPStatus.BAD_REQUEST: 400>
+
+tests\test_01_users.py:538: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:224 Forbidden: /api/v1/users/me/
+___ Test01UserAPI.test_10_02_users_me_has_field_validation[data2-messege2] ____
+
+self = <tests.test_01_users.Test01UserAPI object at 0x000002807092E880>
+user_client = <rest_framework.test.APIClient object at 0x000002807092E700>
+data = {'email': 'valid-email@yamdb.fake', 'username': '|-|aTa|_|_|a'}
+messege = ('Проверьте, что при обработке {request_method}-запроса к `{url}` содержание поля `username` проверяется на соответствие паттерну, указанному в спецификации: ^[\\w.@+-]+\\Z',)
+
+    @pytest.mark.parametrize(
+        'data,messege', invalid_data_for_user_patch_and_creation
+    )
+    def test_10_02_users_me_has_field_validation(self, user_client, data,
+                                                 messege):
+        request_method = 'PATCH'
+        response = user_client.patch(self.USERS_ME_URL, data=data)
+>       assert response.status_code == HTTPStatus.BAD_REQUEST, (
+            messege[0].format(
+                url=self.USERS_ME_URL,
+                request_method=request_method
+            )
+        )
+E       AssertionError: Проверьте, что при обработке PATCH-запроса к `/api/v1/users/me/` содержание поля `username` проверяется на соответствие паттерну, указанному в спецификации: ^[\w.@+-]+\Z
+E       assert 403 == <HTTPStatus.BAD_REQUEST: 400>
+E         +403
+E         -<HTTPStatus.BAD_REQUEST: 400>
+
+tests\test_01_users.py:538: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:224 Forbidden: /api/v1/users/me/
+___ Test01UserAPI.test_10_02_users_me_has_field_validation[data3-messege3] ____
+
+self = <tests.test_01_users.Test01UserAPI object at 0x000002807092EE80>
+user_client = <rest_framework.test.APIClient object at 0x000002806F1C0CA0>
+data = {'email': 'valid-email@yamdb.fake', 'first_name': 'toolonggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg', 'username': 'validname'}
+messege = ('Проверьте, что при обработке POST-запроса к `{url}` проверяется длина поля `first_name`: его содержимое не должно быть длиннее 150 символов.',)
+
+    @pytest.mark.parametrize(
+        'data,messege', invalid_data_for_user_patch_and_creation
+    )
+    def test_10_02_users_me_has_field_validation(self, user_client, data,
+                                                 messege):
+        request_method = 'PATCH'
+        response = user_client.patch(self.USERS_ME_URL, data=data)
+>       assert response.status_code == HTTPStatus.BAD_REQUEST, (
+            messege[0].format(
+                url=self.USERS_ME_URL,
+                request_method=request_method
+            )
+        )
+E       AssertionError: Проверьте, что при обработке POST-запроса к `/api/v1/users/me/` проверяется длина поля `first_name`: его содержимое не должно быть длиннее 150 символов.
+E       assert 403 == <HTTPStatus.BAD_REQUEST: 400>
+E         +403
+E         -<HTTPStatus.BAD_REQUEST: 400>
+
+tests\test_01_users.py:538: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:224 Forbidden: /api/v1/users/me/
+___ Test01UserAPI.test_10_02_users_me_has_field_validation[data4-messege4] ____
+
+self = <tests.test_01_users.Test01UserAPI object at 0x000002806F43F790>
+user_client = <rest_framework.test.APIClient object at 0x000002806F0F2460>
+data = {'email': 'valid-email@yamdb.fake', 'last_name': 'toolonggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg', 'username': 'validname'}
+messege = ('Проверьте, что при обработке POST-запроса к `{url}` проверяется длина поля `last_name`: его содержимое не должно быть длиннее 150 символов.',)
+
+    @pytest.mark.parametrize(
+        'data,messege', invalid_data_for_user_patch_and_creation
+    )
+    def test_10_02_users_me_has_field_validation(self, user_client, data,
+                                                 messege):
+        request_method = 'PATCH'
+        response = user_client.patch(self.USERS_ME_URL, data=data)
+>       assert response.status_code == HTTPStatus.BAD_REQUEST, (
+            messege[0].format(
+                url=self.USERS_ME_URL,
+                request_method=request_method
+            )
+        )
+E       AssertionError: Проверьте, что при обработке POST-запроса к `/api/v1/users/me/` проверяется длина поля `last_name`: его содержимое не должно быть длиннее 150 символов.
+E       assert 403 == <HTTPStatus.BAD_REQUEST: 400>
+E         +403
+E         -<HTTPStatus.BAD_REQUEST: 400>
+
+tests\test_01_users.py:538: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:224 Forbidden: /api/v1/users/me/
+_______ Test01UserAPI.test_10_03_users_me_patch_change_role_not_allowed _______
+
+self = <tests.test_01_users.Test01UserAPI object at 0x000002806F0DA4C0>
+user_client = <rest_framework.test.APIClient object at 0x000002806F793C10>
+user = <User: TestUser>, django_user_model = <class 'users.models.User'>
+
+    def test_10_03_users_me_patch_change_role_not_allowed(self,
+                                                          user_client,
+                                                          user,
+                                                          django_user_model):
+        response = user_client.patch(
+            f'{self.USERS_ME_URL}', data=self.PATCH_DATA
+        )
+>       assert response.status_code == HTTPStatus.OK, (
+            'Проверьте, что PATCH-запрос пользователя с ролью `user` к '
+            f'`{self.USERS_ME_URL}` возвращает ответ со статусом 200.'
+        )
+E       AssertionError: Проверьте, что PATCH-запрос пользователя с ролью `user` к `/api/v1/users/me/` возвращает ответ со статусом 200.
+E       assert 403 == <HTTPStatus.OK: 200>
+E         +403
+E         -<HTTPStatus.OK: 200>
+
+tests\test_01_users.py:552: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:224 Forbidden: /api/v1/users/me/
+_________________ Test02CategoryAPI.test_01_category_not_auth _________________
+
+self = <tests.test_02_category.Test02CategoryAPI object at 0x0000028070991250>
+client = <django.test.client.Client object at 0x0000028070E7D2B0>
+
+    def test_01_category_not_auth(self, client):
+>       response = client.get(self.CATEGORY_URL)
+
+tests\test_02_category.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\lib\site-packages\django\test\client.py:742: in get
+    response = super().get(path, data=data, secure=secure, **extra)
+venv\lib\site-packages\django\test\client.py:396: in get
+    return self.generic('GET', path, secure=secure, **{
+venv\lib\site-packages\django\test\client.py:473: in generic
+    return self.request(**r)
+venv\lib\site-packages\django\test\client.py:719: in request
+    self.check_exception(response)
+venv\lib\site-packages\django\test\client.py:580: in check_exception
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:47: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:181: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:125: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:509: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:469: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:480: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:506: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:38: in list
+    queryset = self.filter_queryset(self.get_queryset())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <api.views.CategoryViewSet object at 0x000002806F43A0D0>
+
+    def get_queryset(self):
+        """
+        Get the list of items for this view.
+        This must be an iterable, and may be a queryset.
+        Defaults to using `self.queryset`.
+    
+        This method should always be used rather than accessing `self.queryset`
+        directly, as `self.queryset` gets evaluated only once, and those results
+        are cached for all subsequent requests.
+    
+        You may want to override this if you need to provide different
+        querysets depending on the incoming request.
+    
+        (Eg. return a list of items that is specific to the user)
+        """
+>       assert self.queryset is not None, (
+            "'%s' should either include a `queryset` attribute, "
+            "or override the `get_queryset()` method."
+            % self.__class__.__name__
+        )
+E       AssertionError: 'CategoryViewSet' should either include a `queryset` attribute, or override the `get_queryset()` method.
+
+venv\lib\site-packages\rest_framework\generics.py:63: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    django.request:log.py:224 Internal Server Error: /api/v1/categories/
+Traceback (most recent call last):
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 47, in inner
+    response = get_response(request)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 181, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 125, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\generics.py", line 63, in get_queryset
+    assert self.queryset is not None, (
+AssertionError: 'CategoryViewSet' should either include a `queryset` attribute, or override the `get_queryset()` method.
+____________________ Test03GenreAPI.test_01_genre_not_auth ____________________
+
+self = <tests.test_03_genre.Test03GenreAPI object at 0x000002806F7ABAC0>
+client = <django.test.client.Client object at 0x0000028070882430>
+
+    def test_01_genre_not_auth(self, client):
+>       response = client.get(self.GENRES_URL)
+
+tests\test_03_genre.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\lib\site-packages\django\test\client.py:742: in get
+    response = super().get(path, data=data, secure=secure, **extra)
+venv\lib\site-packages\django\test\client.py:396: in get
+    return self.generic('GET', path, secure=secure, **{
+venv\lib\site-packages\django\test\client.py:473: in generic
+    return self.request(**r)
+venv\lib\site-packages\django\test\client.py:719: in request
+    self.check_exception(response)
+venv\lib\site-packages\django\test\client.py:580: in check_exception
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:47: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:181: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:125: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:509: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:469: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:480: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:506: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:38: in list
+    queryset = self.filter_queryset(self.get_queryset())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <api.views.GenreViewSet object at 0x0000028070882A60>
+
+    def get_queryset(self):
+        """
+        Get the list of items for this view.
+        This must be an iterable, and may be a queryset.
+        Defaults to using `self.queryset`.
+    
+        This method should always be used rather than accessing `self.queryset`
+        directly, as `self.queryset` gets evaluated only once, and those results
+        are cached for all subsequent requests.
+    
+        You may want to override this if you need to provide different
+        querysets depending on the incoming request.
+    
+        (Eg. return a list of items that is specific to the user)
+        """
+>       assert self.queryset is not None, (
+            "'%s' should either include a `queryset` attribute, "
+            "or override the `get_queryset()` method."
+            % self.__class__.__name__
+        )
+E       AssertionError: 'GenreViewSet' should either include a `queryset` attribute, or override the `get_queryset()` method.
+
+venv\lib\site-packages\rest_framework\generics.py:63: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    django.request:log.py:224 Internal Server Error: /api/v1/genres/
+Traceback (most recent call last):
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 47, in inner
+    response = get_response(request)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 181, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 125, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\generics.py", line 63, in get_queryset
+    assert self.queryset is not None, (
+AssertionError: 'GenreViewSet' should either include a `queryset` attribute, or override the `get_queryset()` method.
+____________________ Test04TitleAPI.test_01_title_not_auth ____________________
+
+self = <tests.test_04_title.Test04TitleAPI object at 0x0000028070DD5F10>
+client = <django.test.client.Client object at 0x0000028070DD53D0>
+
+    def test_01_title_not_auth(self, client):
+>       response = client.get(self.TITLES_URL)
+
+tests\test_04_title.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\lib\site-packages\django\test\client.py:742: in get
+    response = super().get(path, data=data, secure=secure, **extra)
+venv\lib\site-packages\django\test\client.py:396: in get
+    return self.generic('GET', path, secure=secure, **{
+venv\lib\site-packages\django\test\client.py:473: in generic
+    return self.request(**r)
+venv\lib\site-packages\django\test\client.py:719: in request
+    self.check_exception(response)
+venv\lib\site-packages\django\test\client.py:580: in check_exception
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:47: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:181: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:125: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:509: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:469: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:480: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:506: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:38: in list
+    queryset = self.filter_queryset(self.get_queryset())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <api.views.TitleViewSet object at 0x0000028070E7DD60>
+
+    def get_queryset(self):
+        """
+        Get the list of items for this view.
+        This must be an iterable, and may be a queryset.
+        Defaults to using `self.queryset`.
+    
+        This method should always be used rather than accessing `self.queryset`
+        directly, as `self.queryset` gets evaluated only once, and those results
+        are cached for all subsequent requests.
+    
+        You may want to override this if you need to provide different
+        querysets depending on the incoming request.
+    
+        (Eg. return a list of items that is specific to the user)
+        """
+>       assert self.queryset is not None, (
+            "'%s' should either include a `queryset` attribute, "
+            "or override the `get_queryset()` method."
+            % self.__class__.__name__
+        )
+E       AssertionError: 'TitleViewSet' should either include a `queryset` attribute, or override the `get_queryset()` method.
+
+venv\lib\site-packages\rest_framework\generics.py:63: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    django.request:log.py:224 Internal Server Error: /api/v1/titles/
+Traceback (most recent call last):
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 47, in inner
+    response = get_response(request)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 181, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 125, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\generics.py", line 63, in get_queryset
+    assert self.queryset is not None, (
+AssertionError: 'TitleViewSet' should either include a `queryset` attribute, or override the `get_queryset()` method.
+___________________ Test05ReviewAPI.test_01_review_not_auth ___________________
+
+self = <tests.test_05_review.Test05ReviewAPI object at 0x000002807094AF10>
+client = <django.test.client.Client object at 0x000002807094A100>
+admin_client = <rest_framework.test.APIClient object at 0x000002806F094EB0>
+admin = <User: TestAdmin>
+user_client = <rest_framework.test.APIClient object at 0x000002807093C970>
+user = <User: TestUser>
+moderator_client = <rest_framework.test.APIClient object at 0x000002807093C820>
+moderator = <User: TestModerator>
+
+    def test_01_review_not_auth(self, client, admin_client, admin, user_client,
+                                user, moderator_client, moderator):
+        author_map = {
+            admin: admin_client,
+            user: user_client,
+            moderator: moderator_client
+        }
+>       reviews, titles = create_reviews(admin_client, author_map)
+
+tests\test_05_review.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\utils.py:248: in create_reviews
+    titles, _, _ = create_titles(admin_client)
+tests\utils.py:217: in create_titles
+    genres = create_genre(admin_client)
+tests\utils.py:202: in create_genre
+    response = admin_client.post('/api/v1/genres/', data=data)
+venv\lib\site-packages\rest_framework\test.py:295: in post
+    response = super().post(
+venv\lib\site-packages\rest_framework\test.py:209: in post
+    return self.generic('POST', path, data, content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:233: in generic
+    return super().generic(
+venv\lib\site-packages\django\test\client.py:473: in generic
+    return self.request(**r)
+venv\lib\site-packages\rest_framework\test.py:285: in request
+    return super().request(**kwargs)
+venv\lib\site-packages\rest_framework\test.py:237: in request
+    request = super().request(**kwargs)
+venv\lib\site-packages\django\test\client.py:719: in request
+    self.check_exception(response)
+venv\lib\site-packages\django\test\client.py:580: in check_exception
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:47: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:181: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:125: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:509: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:469: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:480: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:506: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:17: in create
+    serializer = self.get_serializer(data=request.data)
+venv\lib\site-packages\rest_framework\generics.py:108: in get_serializer
+    serializer_class = self.get_serializer_class()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <api.views.GenreViewSet object at 0x0000028070A8C5E0>
+
+    def get_serializer_class(self):
+        """
+        Return the class to use for the serializer.
+        Defaults to using `self.serializer_class`.
+    
+        You may want to override this if you need to provide different
+        serializations depending on the incoming request.
+    
+        (Eg. admins get full serialization, others get basic serialization)
+        """
+>       assert self.serializer_class is not None, (
+            "'%s' should either include a `serializer_class` attribute, "
+            "or override the `get_serializer_class()` method."
+            % self.__class__.__name__
+        )
+E       AssertionError: 'GenreViewSet' should either include a `serializer_class` attribute, or override the `get_serializer_class()` method.
+
+venv\lib\site-packages\rest_framework\generics.py:122: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    django.request:log.py:224 Internal Server Error: /api/v1/genres/
+Traceback (most recent call last):
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 47, in inner
+    response = get_response(request)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 181, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 125, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 17, in create
+    serializer = self.get_serializer(data=request.data)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\generics.py", line 108, in get_serializer
+    serializer_class = self.get_serializer_class()
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\generics.py", line 122, in get_serializer_class
+    assert self.serializer_class is not None, (
+AssertionError: 'GenreViewSet' should either include a `serializer_class` attribute, or override the `get_serializer_class()` method.
+__________________ Test06CommentAPI.test_01_comment_not_auth __________________
+
+self = <tests.test_06_comment.Test06CommentAPI object at 0x000002807092D700>
+client = <django.test.client.Client object at 0x000002806F737E20>
+admin_client = <rest_framework.test.APIClient object at 0x000002806F737340>
+admin = <User: TestAdmin>
+user_client = <rest_framework.test.APIClient object at 0x000002806F737400>
+user = <User: TestUser>
+moderator_client = <rest_framework.test.APIClient object at 0x0000028070949430>
+moderator = <User: TestModerator>
+
+    def test_01_comment_not_auth(self, client, admin_client, admin,
+                                 user_client, user, moderator_client,
+                                 moderator):
+        author_map = {
+            admin: admin_client,
+            user: user_client,
+            moderator: moderator_client
+        }
+>       reviews, titles = create_reviews(admin_client, author_map)
+
+tests\test_06_comment.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\utils.py:248: in create_reviews
+    titles, _, _ = create_titles(admin_client)
+tests\utils.py:217: in create_titles
+    genres = create_genre(admin_client)
+tests\utils.py:202: in create_genre
+    response = admin_client.post('/api/v1/genres/', data=data)
+venv\lib\site-packages\rest_framework\test.py:295: in post
+    response = super().post(
+venv\lib\site-packages\rest_framework\test.py:209: in post
+    return self.generic('POST', path, data, content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:233: in generic
+    return super().generic(
+venv\lib\site-packages\django\test\client.py:473: in generic
+    return self.request(**r)
+venv\lib\site-packages\rest_framework\test.py:285: in request
+    return super().request(**kwargs)
+venv\lib\site-packages\rest_framework\test.py:237: in request
+    request = super().request(**kwargs)
+venv\lib\site-packages\django\test\client.py:719: in request
+    self.check_exception(response)
+venv\lib\site-packages\django\test\client.py:580: in check_exception
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:47: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:181: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:125: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:509: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:469: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:480: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:506: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:17: in create
+    serializer = self.get_serializer(data=request.data)
+venv\lib\site-packages\rest_framework\generics.py:108: in get_serializer
+    serializer_class = self.get_serializer_class()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <api.views.GenreViewSet object at 0x000002806F737640>
+
+    def get_serializer_class(self):
+        """
+        Return the class to use for the serializer.
+        Defaults to using `self.serializer_class`.
+    
+        You may want to override this if you need to provide different
+        serializations depending on the incoming request.
+    
+        (Eg. admins get full serialization, others get basic serialization)
+        """
+>       assert self.serializer_class is not None, (
+            "'%s' should either include a `serializer_class` attribute, "
+            "or override the `get_serializer_class()` method."
+            % self.__class__.__name__
+        )
+E       AssertionError: 'GenreViewSet' should either include a `serializer_class` attribute, or override the `get_serializer_class()` method.
+
+venv\lib\site-packages\rest_framework\generics.py:122: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    django.request:log.py:224 Internal Server Error: /api/v1/genres/
+Traceback (most recent call last):
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 47, in inner
+    response = get_response(request)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 181, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 125, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 17, in create
+    serializer = self.get_serializer(data=request.data)
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\generics.py", line 108, in get_serializer
+    serializer_class = self.get_serializer_class()
+  File "C:\Dev\api_yamdb\venv\lib\site-packages\rest_framework\generics.py", line 122, in get_serializer_class
+    assert self.serializer_class is not None, (
+AssertionError: 'GenreViewSet' should either include a `serializer_class` attribute, or override the `get_serializer_class()` method.
+-------------------------- Captured stderr teardown ---------------------------
+Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+=========================== short test summary info ===========================
+FAILED tests/test_01_users.py::Test01UserAPI::test_04_02_users_get_search - A...
+FAILED tests/test_01_users.py::Test01UserAPI::test_05_01_users_post_admin_bad_requests
+FAILED tests/test_01_users.py::Test01UserAPI::test_05_03_users_post_response_has_data
+FAILED tests/test_01_users.py::Test01UserAPI::test_07_01_users_username_patch_admin
+FAILED tests/test_01_users.py::Test01UserAPI::test_07_05_users_username_put_not_allowed
+FAILED tests/test_01_users.py::Test01UserAPI::test_09_users_me_get - Assertio...
+FAILED tests/test_01_users.py::Test01UserAPI::test_09_02_users_me_delete_not_allowed
+FAILED tests/test_01_users.py::Test01UserAPI::test_10_01_users_me_patch - Ass...
+FAILED tests/test_01_users.py::Test01UserAPI::test_10_02_users_me_has_field_validation[data0-messege0]
+FAILED tests/test_01_users.py::Test01UserAPI::test_10_02_users_me_has_field_validation[data1-messege1]
+FAILED tests/test_01_users.py::Test01UserAPI::test_10_02_users_me_has_field_validation[data2-messege2]
+FAILED tests/test_01_users.py::Test01UserAPI::test_10_02_users_me_has_field_validation[data3-messege3]
+FAILED tests/test_01_users.py::Test01UserAPI::test_10_02_users_me_has_field_validation[data4-messege4]
+FAILED tests/test_01_users.py::Test01UserAPI::test_10_03_users_me_patch_change_role_not_allowed
+FAILED tests/test_02_category.py::Test02CategoryAPI::test_01_category_not_auth
+FAILED tests/test_03_genre.py::Test03GenreAPI::test_01_genre_not_auth - Asser...
+FAILED tests/test_04_title.py::Test04TitleAPI::test_01_title_not_auth - Asser...
+FAILED tests/test_05_review.py::Test05ReviewAPI::test_01_review_not_auth - As...
+FAILED tests/test_06_comment.py::Test06CommentAPI::test_01_comment_not_auth
+================ 19 failed, 16 passed, 45 deselected in 4.97s =================

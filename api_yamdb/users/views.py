@@ -2,13 +2,14 @@ from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, status, views, viewsets
+from rest_framework import exceptions, filters, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
-from .permissions import AdminOnly, OnlyOwnAccount
+from .permissions import AdminOnly, OnlyOwnAccountOrAdmins
 from .serializers import (
     CustomUserSerializer,
     TokenSerializer,
@@ -27,8 +28,8 @@ def signup(request):
     user = User.objects.get(username=request.data['username'],
                             email=request.data['email'])
     conformation_code = default_token_generator.make_token(user)
-    send_mail(f'Hello, {str(user.username)}! Your confirmation code is here!',
-              conformation_code,
+    send_mail('Your confirmation code!',
+              ('Ваш код подтверждения:\n' + conformation_code),
               settings.EMAIL_FOR_AUTH_LETTERS,
               [request.data['email']],
               fail_silently=True)
@@ -63,16 +64,17 @@ class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     lookup_field = 'username'
     serializer_class = CustomUserSerializer
-    # filter_backends = (filters.SearchFilter,)
-    search_fields = ('username',)
-    # pagination_class = PageNumberPagination
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('=username',)
     permission_classes = (AdminOnly,)
+    pagination_class = PageNumberPagination
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     @action(detail=False, methods=['get', 'patch'],
-            permission_classes=(AdminOnly, OnlyOwnAccount), url_path='me')
+            permission_classes=(OnlyOwnAccountOrAdmins,),
+            url_path='me')
     def me(self, request):
-        print(f'Request = {self.request.user.__dict__}')
-        user = get_object_or_404(User, id=self.request.user.id)
+        user = get_object_or_404(User, id=request.user.id)
         if request.method == 'GET':
             serializer = self.get_serializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -81,18 +83,9 @@ class UsersViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             if 'role' in request.data:
                 if user.role != 'user':
-                    serializer.save()
+                    serializer.save(role=request.data['role'])
             else:
                 serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class MeViewSet(viewsets.ModelViewSet):
-    # queryset = User.objects.all()
-    lookup_field = 'username'
-    serializer_class = CustomUserSerializer
-
-    def get(self, request):
-        user = get_object_or_404(User, username=self.request.user.username)
-        serializer = self.get_serializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            raise exceptions.ValidationError('Получены неверные данные.')

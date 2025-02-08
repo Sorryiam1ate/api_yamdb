@@ -3,7 +3,6 @@ from .models import User
 
 
 def validate_username(value):
-    print(f'Value is {value}')
     if value == 'me':
         raise ValidationError('Недопустимое имя пользователя!')
 

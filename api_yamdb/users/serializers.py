@@ -1,7 +1,6 @@
-from django.contrib.auth.tokens import default_token_generator
 from rest_framework import serializers
 from .models import User
-from .validators import validate_username, validate_email
+from .validators import validate_username
 from django.core.validators import RegexValidator
 
 
@@ -19,15 +18,15 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if (
-            not User.objects.filter(username=data['username']).exists()
-            and User.objects.filter(email=data['email']).exists()
+            not User.objects.filter(username=data.get('username')).exists()
+            and User.objects.filter(email=data.get('email')).exists()
         ):
             raise serializers.ValidationError(
                 'Пользователь с такой почтой '
                 'уже зарегестрирован')
         if (
-            User.objects.filter(username=data['username']).exists()
-            and not User.objects.filter(email=data['email']).exists()
+            User.objects.filter(username=data.get('username')).exists()
+            and not User.objects.filter(email=data.get('email')).exists()
         ):
             raise serializers.ValidationError(
                 'Пользователь с таким именем '
@@ -56,4 +55,21 @@ class CustomUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('email', 'username', 'first_name',
                   'last_name', 'bio', 'role')
-        read_only_fields = ('username', 'role')
+        read_only_fields = ('username',)
+
+    def validate(self, data):
+        if (
+            not User.objects.filter(username=data.get('username')).exists()
+            and User.objects.filter(email=data.get('email')).exists()
+        ):
+            raise serializers.ValidationError(
+                'Пользователь с такой почтой '
+                'уже зарегестрирован')
+        if (
+            User.objects.filter(username=data.get('username')).exists()
+            and not User.objects.filter(email=data.get('email')).exists()
+        ):
+            raise serializers.ValidationError(
+                'Пользователь с таким именем '
+                'уже зарегестрирован')
+        return data
