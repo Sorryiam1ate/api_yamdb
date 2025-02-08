@@ -28,8 +28,8 @@ def signup(request):
     user = User.objects.get(username=request.data['username'],
                             email=request.data['email'])
     conformation_code = default_token_generator.make_token(user)
-    send_mail(f'Hello, {str(user.username)}! Your confirmation code is here!',
-              conformation_code,
+    send_mail('Your confirmation code!',
+              ('Ваш код подтверждения:\n' + conformation_code),
               settings.EMAIL_FOR_AUTH_LETTERS,
               [request.data['email']],
               fail_silently=True)
