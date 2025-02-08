@@ -13,6 +13,7 @@ from api.serializers import (
     TitleSerializer,
     CategorySerializer,
     GenreSerializer,
+    TitleReadSerializer
 )
 
 from reviews.models import Title, Category, Genre, Review
@@ -24,16 +25,12 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     permission_classes = [AdminOrReadOnly,]
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
-    def update(self, request, *args, **kwargs):
-
-        if request.method == "PUT":
-            return Response(
-                {"detail": "Метод PUT не доступен"},
-                status=status.HTTP_405_METHOD_NOT_ALLOWED
-            )
-        if request.method == "PATCH":
-            return super().update(request, *args, **kwargs)
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return TitleReadSerializer
+        return TitleSerializer
 
 
 class CategoryViewSet(
