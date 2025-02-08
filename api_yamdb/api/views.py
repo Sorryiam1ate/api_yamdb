@@ -2,6 +2,10 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from users.permissions import AdminOrReadOnly
+from rest_framework.filters import SearchFilter
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import action
 
 from api.serializers import (
     CommentSerializer,
@@ -21,26 +25,45 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     permission_classes = [AdminOrReadOnly,]
 
+    def update(self, request, *args, **kwargs):
+
+        if request.method == "PUT":
+            return Response(
+                {"detail": "Метод PUT не доступен"},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+        if request.method == "PATCH":
+            return super().update(request, *args, **kwargs)
+
 
 class CategoryViewSet(
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
+    viewsets.GenericViewSet,
 ):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = PageNumberPagination
+    permission_classes = [AdminOrReadOnly,]
+    filter_backends = (SearchFilter,)
+    search_fields = ('^name',)
+    lookup_field = "slug"
 
 
 class GenreViewSet(
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
+    viewsets.GenericViewSet,
 ):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    pagination_class = PageNumberPagination
+    permission_classes = [AdminOrReadOnly,]
+    filter_backends = (SearchFilter,)
+    search_fields = ('^name',)
+    lookup_field = "slug"
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
