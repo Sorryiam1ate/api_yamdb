@@ -50,36 +50,12 @@ class CustomUserSerializer(serializers.ModelSerializer):
                                          validate_username,
                                          RegexValidator(regex=r'^[\w.@+-]+\Z')
                                      ))
-    role = serializers.ChoiceField(
-        choices=(
-            ('admin', 'Администратор'),
-            ('user', 'Аутентифицированный пользователь'),
-            ('moderator', 'Модератор')),
-        label='Роль', required=False)
-    first_name = serializers.CharField(
-        allow_blank=True,
-        label='Имя',
-        max_length=150,
-        required=False
-    )
-    last_name = serializers.CharField(
-        allow_blank=True,
-        label='Фамилия',
-        max_length=150,
-        required=False
-    )
-    bio = serializers.CharField(
-        allow_blank=True,
-        label='Биография',
-        required=False,
-        style={'base_template': 'textarea.html'}
-    )
 
     class Meta:
         model = User
         fields = ('email', 'username', 'first_name',
                   'last_name', 'bio', 'role')
-        # read_only_fields = ('username',)
+        read_only_fields = ('username',)
 
     def validate(self, data):
         if (
