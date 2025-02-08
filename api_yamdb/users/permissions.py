@@ -44,7 +44,18 @@ class AdminOnly(permissions.BasePermission):
         return False
 
 
-class OnlyOwnAccount(permissions.BasePermission):
+class OnlyOwnAccountOrAdmins(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            return (
+                User.objects.get(pk=request.user.id).is_admin
+                or User.objects.get(pk=request.user.id).is_superuser
+                or request.user.id == User.objects.get(
+                    pk=request.user.id).id
+            )
+        return False
+
     def has_object_permission(self, request, view, obj):
         return obj.user.id == request.user.id
 
