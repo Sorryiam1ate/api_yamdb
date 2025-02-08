@@ -56,6 +56,7 @@ coverage.xml
 *.pot
 
 # Django stuff:
+sent_emails/
 *.log
 local_settings.py
 db.sqlite3
