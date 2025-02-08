@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
-from users.permissions import AdminOrReadOnly
+from users.permissions import AdminOrReadOnly, IsAuthorOrModerOrAdmin
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework import status
@@ -65,12 +65,14 @@ class GenreViewSet(
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
+    http_method_names = ['get', 'post', 'patch', 'delete']
+    permission_classes = [IsAuthorOrModerOrAdmin,]
 
     def get_title(self):
         return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
 
     def get_queryset(self):
-        return self.get_title().reviews
+        return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
         serializer.save(
@@ -81,12 +83,14 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
+    http_method_names = ['get', 'post', 'patch', 'delete']
+    permission_classes = [IsAuthorOrModerOrAdmin,]
 
     def get_review(self):
         return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
 
     def get_queryset(self):
-        return self.get_review().comments
+        return self.get_review().comments.all()
 
     def perform_create(self, serializer):
         serializer.save(

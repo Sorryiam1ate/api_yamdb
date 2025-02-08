@@ -36,7 +36,7 @@ class Title(models.Model):
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
-        related_name='review'
+        related_name='titles'
     )
     description = models.TextField(
         'Описание',
