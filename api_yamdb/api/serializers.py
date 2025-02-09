@@ -1,6 +1,7 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from rest_framework.relations import SlugRelatedField
+from rest_framework.relations import SlugRelatedField, PrimaryKeyRelatedField
 from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import (
@@ -25,25 +26,39 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only_fields = ('review',)
 
 
+class CurrentTitleDefault:
+    """
+    Класс для автоматического подстановки title из URL.
+    """
+    requires_context = True
+
+    def __call__(self, serializer_field):
+        view = serializer_field.context['view']
+        title_id = view.kwargs.get('title_id')
+        return get_object_or_404(Title, id=title_id)
+
+
 class ReviewSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(
         slug_field='username',
         read_only=True,
         default=serializers.CurrentUserDefault()
     )
+    title = PrimaryKeyRelatedField(
+        read_only=True,
+        default=CurrentTitleDefault()
+    )
 
     class Meta:
         fields = '__all__'
         model = Review
-        read_only_fields = ('title',)
-
-
-"""         validators = [
+        read_only_fields = ('author', 'title', 'pub_date')
+        validators = [
             UniqueTogetherValidator(
                 queryset=Review.objects.all(),
                 fields=('title', 'author')
             )
-        ] """
+        ]
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -59,9 +74,20 @@ class TitleSerializer(serializers.ModelSerializer):
         queryset=Genre.objects.all()
     )
 
+    rating = serializers.SerializerMethodField()
+
     class Meta:
         model = Title
-        fields = '__all__'
+        fields = (
+            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
+        )
+
+    def get_rating(self, obj):
+        reviews = obj.reviews.all()
+        if not reviews.exists():
+            return None
+        total_score = sum(review.score for review in reviews)
+        return total_score // reviews.count()
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -81,7 +107,15 @@ class TitleReadSerializer(serializers.ModelSerializer):
     rating = serializers.FloatField(read_only=True)
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(many=True, read_only=True)
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Title
         fields = '__all__'
+
+    def get_rating(self, obj):
+        reviews = obj.reviews.all()
+        if not reviews.exists():
+            return None
+        total_score = sum(review.score for review in reviews)
+        return total_score // reviews.count()

@@ -3,9 +3,6 @@ from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from users.permissions import AdminOrReadOnly, IsAuthorOrModerOrAdmin
 from rest_framework.filters import SearchFilter
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import action
 
 from api.serializers import (
     CommentSerializer,
