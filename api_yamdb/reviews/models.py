@@ -14,6 +14,9 @@ class Category(models.Model):
         unique=True
     )
 
+    class Meta:
+        ordering = ('name',)
+
 
 class Genre(models.Model):
     name = models.CharField(
@@ -23,6 +26,9 @@ class Genre(models.Model):
     slug = models.SlugField(
         unique=True
     )
+
+    class Meta:
+        ordering = ('name',)
 
 
 class Title(models.Model):
@@ -48,6 +54,9 @@ class Title(models.Model):
         through='Genre_title',
     )
 
+    class Meta:
+        ordering = ('name',)
+
 
 class Review(models.Model):
     text = models.TextField('Текст отзыва')
@@ -68,6 +77,7 @@ class Review(models.Model):
     )
 
     class Meta:
+        ordering = ('title',)
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'author'],
@@ -87,6 +97,9 @@ class Comment(models.Model):
     pub_date = models.DateTimeField(
         'Дата публикации', auto_now_add=True, db_index=True
     )
+
+    class Meta:
+        ordering = ('-pub_date',)
 
     def __str__(self):
         return self.text[:DISPLAYED_TEXT]
