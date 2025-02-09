@@ -7,7 +7,7 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import AccessToken
 from .models import User
 from .permissions import AdminOnly, OnlyOwnAccountOrAdmins
 from .serializers import (
@@ -36,15 +36,6 @@ def signup(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-def get_tokens_for_user(user):
-    refresh = RefreshToken.for_user(user)
-
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
-    }
-
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def token(request):
@@ -53,7 +44,7 @@ def token(request):
     user = get_object_or_404(User, username=request.data['username'])
     confirmation_code = request.data['confirmation_code']
     if default_token_generator.check_token(user, confirmation_code):
-        token = get_tokens_for_user(user)
+        token = token = AccessToken.for_user(user)
         response = {'token': str(token['access'])}
         return Response(response, status=status.HTTP_200_OK)
     return Response(serializer.errors,
