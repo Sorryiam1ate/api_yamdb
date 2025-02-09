@@ -7,6 +7,8 @@ class UserAdmin(admin.ModelAdmin):
     fields = ['username', 'role']
     list_display = (
         'username',
+        'email',
+        'bio',
         'role',
     )
     list_filter = (
