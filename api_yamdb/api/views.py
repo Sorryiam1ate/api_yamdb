@@ -3,6 +3,11 @@ from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from users.permissions import AdminOrReadOnly, IsAuthorOrModerOrAdmin
 from rest_framework.filters import SearchFilter
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import action
+from django_filters.rest_framework import DjangoFilterBackend
+from api.filter import TitleFilter
 
 from api.serializers import (
     CommentSerializer,
@@ -23,6 +28,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     permission_classes = [AdminOrReadOnly,]
     http_method_names = ['get', 'post', 'patch', 'delete']
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
