@@ -1,16 +1,20 @@
 from rest_framework import serializers
+
+from django.core.validators import RegexValidator
+
 from .models import User
 from .validators import validate_username
-from django.core.validators import RegexValidator
 
 
 class SignUpSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=254, allow_blank=False)
-    username = serializers.CharField(max_length=150, allow_blank=False,
-                                     validators=(
-                                         validate_username,
-                                         RegexValidator(regex=r'^[\w.@+-]+\Z')
-                                     ))
+    username = serializers.CharField(
+        max_length=150,
+        allow_blank=False,
+        validators=(
+            validate_username,
+            RegexValidator(regex=r'^[\w.@+-]+\Z')
+        ))
 
     class Meta:
         model = User
@@ -45,16 +49,23 @@ class TokenSerializer(serializers.ModelSerializer):
 
 class CustomUserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=254, allow_blank=False)
-    username = serializers.CharField(max_length=150, allow_blank=False,
-                                     validators=(
-                                         validate_username,
-                                         RegexValidator(regex=r'^[\w.@+-]+\Z')
-                                     ))
+    username = serializers.CharField(
+        max_length=150, allow_blank=False,
+        validators=(
+            validate_username,
+            RegexValidator(regex=r'^[\w.@+-]+\Z')
+        ))
 
     class Meta:
         model = User
-        fields = ('email', 'username', 'first_name',
-                  'last_name', 'bio', 'role')
+        fields = (
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'bio',
+            'role',
+        )
         read_only_fields = ('username',)
 
     def validate(self, data):

@@ -1,4 +1,5 @@
 from rest_framework import permissions
+
 from .models import User
 
 
@@ -61,7 +62,6 @@ class OnlyOwnAccountOrAdmins(permissions.BasePermission):
 
 
 class IsAuthorOrModerOrAdmin(permissions.BasePermission):
-    """Permission for Review and Comment"""
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True

@@ -1,16 +1,10 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers
 
+from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField, PrimaryKeyRelatedField
 from rest_framework.validators import UniqueTogetherValidator
 
-from reviews.models import (
-    Comment,
-    Review,
-    Title,
-    Category,
-    Genre,
-)
+from reviews.models import Comment, Review, Title, Category, Genre
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -79,7 +73,13 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = (
-            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
+            'id',
+            'name',
+            'year',
+            'rating',
+            'description',
+            'genre',
+            'category'
         )
 
     def get_rating(self, obj):

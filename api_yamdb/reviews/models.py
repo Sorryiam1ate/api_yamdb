@@ -8,7 +8,7 @@ from users.models import User
 class Category(models.Model):
     name = models.CharField(
         max_length=50,
-        verbose_name="Название Категории"
+        verbose_name='Название Категории'
     )
     slug = models.SlugField(
         unique=True
@@ -21,7 +21,7 @@ class Category(models.Model):
 class Genre(models.Model):
     name = models.CharField(
         max_length=50,
-        verbose_name="Название Жанра"
+        verbose_name='Название Жанра'
     )
     slug = models.SlugField(
         unique=True
@@ -34,7 +34,7 @@ class Genre(models.Model):
 class Title(models.Model):
     name = models.CharField(
         max_length=200,
-        verbose_name="Название Произведения"
+        verbose_name='Название Произведения'
     )
     year = models.PositiveSmallIntegerField(
         null=False
