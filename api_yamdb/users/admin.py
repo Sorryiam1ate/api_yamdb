@@ -4,7 +4,7 @@ from .models import User
 
 
 class UserAdmin(admin.ModelAdmin):
-    fields = ('username', 'role')
+    fields = ['username', 'email', 'bio', 'role']
     list_display = (
         'username',
         'email',
