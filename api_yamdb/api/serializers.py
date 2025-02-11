@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 
 from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField, PrimaryKeyRelatedField
+from rest_framework.relations import SlugRelatedField
 from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Comment, Review, Title, Category, Genre
@@ -15,7 +15,7 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = '__all__'
+        exclude = ('review',)
         model = Comment
         read_only_fields = ('review',)
 
@@ -38,15 +38,14 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True,
         default=serializers.CurrentUserDefault()
     )
-    title = PrimaryKeyRelatedField(
-        read_only=True,
+    title = serializers.HiddenField(
         default=CurrentTitleDefault()
     )
 
     class Meta:
         fields = '__all__'
         model = Review
-        read_only_fields = ('author', 'title', 'pub_date')
+        read_only_fields = ('pub_date',)
         validators = [
             UniqueTogetherValidator(
                 queryset=Review.objects.all(),

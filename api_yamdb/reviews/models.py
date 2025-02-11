@@ -1,43 +1,52 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-from .constants import DISPLAYED_TEXT
+from .constants import DISPLAYED_TEXT, NAME_LENGTH, SLUG_LENGTH
 from users.models import User
 
 
 class Category(models.Model):
     name = models.CharField(
-        max_length=50,
+        max_length=NAME_LENGTH,
         verbose_name='Название Категории'
     )
     slug = models.SlugField(
-        unique=True
+        unique=True,
+        max_length=SLUG_LENGTH,
+        verbose_name='Слаг Категории'
     )
 
     class Meta:
         ordering = ('name',)
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
 
 class Genre(models.Model):
     name = models.CharField(
-        max_length=50,
+        max_length=NAME_LENGTH,
         verbose_name='Название Жанра'
     )
     slug = models.SlugField(
-        unique=True
+        unique=True,
+        max_length=SLUG_LENGTH,
+        verbose_name='Слаг Жанра'
     )
 
     class Meta:
         ordering = ('name',)
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
 
 
 class Title(models.Model):
     name = models.CharField(
-        max_length=200,
+        max_length=NAME_LENGTH,
         verbose_name='Название Произведения'
     )
     year = models.PositiveSmallIntegerField(
-        null=False
+        null=False,
+        verbose_name='Год издания'
     )
     category = models.ForeignKey(
         Category,
@@ -56,6 +65,8 @@ class Title(models.Model):
 
     class Meta:
         ordering = ('name',)
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
 
 
 class ReviewComment(models.Model):
@@ -81,6 +92,7 @@ class Review(ReviewComment):
         Title, on_delete=models.CASCADE, related_name='reviews'
     )
     score = models.PositiveSmallIntegerField(
+        'Оценка',
         validators=[
             MaxValueValidator(10),
             MinValueValidator(0)
@@ -94,12 +106,18 @@ class Review(ReviewComment):
                 name='unique_title_author'
             )
         ]
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
 
 
 class Comment(ReviewComment):
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE, related_name='comments'
     )
+
+    class Meta(ReviewComment.Meta):
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
 
 
 class Genre_title(models.Model):
@@ -111,3 +129,7 @@ class Genre_title(models.Model):
         Title,
         on_delete=models.CASCADE,
     )
+
+    class Meta:
+        verbose_name = 'Жанр_Произведение'
+        verbose_name_plural = 'Жанры_Произведения'

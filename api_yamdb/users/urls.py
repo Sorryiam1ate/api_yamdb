@@ -7,7 +7,6 @@ from .views import UsersViewSet, signup, token
 
 router_v1 = SimpleRouter()
 router_v1.register(r'users', UsersViewSet, basename='users')
-print(router_v1.urls)
 
 urlpatterns = [
     path('auth/signup/', signup),
