@@ -22,7 +22,11 @@ router_v1.register(
     CommentViewSet, basename='comment'
 )
 
+v1_patterns = [
+    path('', include(router_v1.urls)),
+    path('', include('users.urls')),
+]
+
 urlpatterns = [
-    path('v1/', include(router_v1.urls)),
-    path('v1/', include('users.urls')),
+    path('v1/', include(v1_patterns)),
 ]
