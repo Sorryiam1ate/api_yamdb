@@ -58,11 +58,25 @@ class Title(models.Model):
         ordering = ('name',)
 
 
-class Review(models.Model):
+class ReviewComment(models.Model):
     text = models.TextField('Текст отзыва')
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='reviews'
+        User, on_delete=models.CASCADE,
+        related_name='%(app_label)s_%(class)s_related'
     )
+    pub_date = models.DateTimeField(
+        'Дата публикации', auto_now_add=True, db_index=True
+    )
+
+    class Meta:
+        abstract = True
+        ordering = ('-pub_date',)
+
+    def __str__(self):
+        return self.text[:DISPLAYED_TEXT]
+
+
+class Review(ReviewComment):
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE, related_name='reviews'
     )
@@ -72,12 +86,8 @@ class Review(models.Model):
             MinValueValidator(0)
         ]
     )
-    pub_date = models.DateTimeField(
-        'Дата публикации', auto_now_add=True, db_index=True
-    )
 
-    class Meta:
-        ordering = ('title',)
+    class Meta(ReviewComment.Meta):
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'author'],
@@ -86,23 +96,10 @@ class Review(models.Model):
         ]
 
 
-class Comment(models.Model):
-    text = models.TextField('Текст комментария')
-    author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='comments'
-    )
+class Comment(ReviewComment):
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE, related_name='comments'
     )
-    pub_date = models.DateTimeField(
-        'Дата публикации', auto_now_add=True, db_index=True
-    )
-
-    class Meta:
-        ordering = ('-pub_date',)
-
-    def __str__(self):
-        return self.text[:DISPLAYED_TEXT]
 
 
 class Genre_title(models.Model):
