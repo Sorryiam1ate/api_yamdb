@@ -25,12 +25,13 @@ class Round(Func):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(rating=Round(Avg('reviews__score')))
+    queryset = Title.objects.annotate(
+        rating=Round(Avg('reviews__score'))
+    ).order_by('-id',)
     permission_classes = (AdminOrReadOnly,)
     http_method_names = ('get', 'post', 'patch', 'delete')
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filterset_class = TitleFilter
-    ordering_fields = ('name', 'year', 'category')
 
     def get_serializer_class(self):
         if self.request.method in permissions.SAFE_METHODS:

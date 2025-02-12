@@ -67,10 +67,8 @@ class Title(models.Model):
     )
 
     class Meta:
+        ordering = ('-id',)
         verbose_name = 'произведение'
-        verbose_name_plural = 'Произведения'
-        ordering = ('name',)
-        verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
     def __str__(self):
@@ -117,20 +115,6 @@ class Review(ReviewComment):
                 name='unique_title_author'
             )
         ]
-
-
-class Comment(models.Model):
-    text = models.TextField('Текст комментария')
-    author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='comments'
-    )
-    review = models.ForeignKey(
-        Review, on_delete=models.CASCADE, related_name='comments'
-    )
-
-    class Meta(ReviewComment.Meta):
-        verbose_name = 'Комментарий'
-        verbose_name_plural = 'Комментарии'
 
 
 class Comment(ReviewComment):
