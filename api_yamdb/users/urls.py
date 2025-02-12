@@ -13,7 +13,5 @@ auth_patterns = [
 
 urlpatterns = [
     path('', include(router_v1.urls)),
-    # path('auth/', include(auth_patterns), name='auth'),
-    path('auth/signup/', signup),
-    path('auth/token/', token),
+    path('auth/', include(auth_patterns), name='auth'),
 ]

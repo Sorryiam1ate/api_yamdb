@@ -1,6 +1,6 @@
 DISPLAYED_TEXT = 20
 
-RESTRICTED_NAME = 'me'
+RESTRICTED_NAME = ('me',)
 
 PATTERN_USERNAME = r'^[\w.@+-]+\Z'
 
