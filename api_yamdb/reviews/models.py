@@ -1,18 +1,20 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-from .constants import DISPLAYED_TEXT, NAME_LENGTH, SLUG_LENGTH
+from .constants import (
+    DISPLAYED_TEXT, NAME_MAX_LENGTH, SLUG_MAX_LENGTH, MAX_SCORE, MIN_SCORE
+)
 from users.models import User
 
 
 class Category(models.Model):
     name = models.CharField(
-        max_length=NAME_LENGTH,
+        max_length=NAME_MAX_LENGTH,
         verbose_name='Название Категории'
     )
     slug = models.SlugField(
         unique=True,
-        max_length=SLUG_LENGTH,
+        max_length=SLUG_MAX_LENGTH,
         verbose_name='Слаг Категории'
     )
 
@@ -21,15 +23,18 @@ class Category(models.Model):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
+    def __str__(self):
+        return self.name[:DISPLAYED_TEXT]
+
 
 class Genre(models.Model):
     name = models.CharField(
-        max_length=NAME_LENGTH,
+        max_length=NAME_MAX_LENGTH,
         verbose_name='Название Жанра'
     )
     slug = models.SlugField(
         unique=True,
-        max_length=SLUG_LENGTH,
+        max_length=SLUG_MAX_LENGTH,
         verbose_name='Слаг Жанра'
     )
 
@@ -38,10 +43,13 @@ class Genre(models.Model):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
+    def __str__(self):
+        return self.name[:DISPLAYED_TEXT]
+
 
 class Title(models.Model):
     name = models.CharField(
-        max_length=NAME_LENGTH,
+        max_length=NAME_MAX_LENGTH,
         verbose_name='Название Произведения'
     )
     year = models.PositiveSmallIntegerField(
@@ -66,6 +74,9 @@ class Title(models.Model):
         ordering = ('name',)
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
+
+    def __str__(self):
+        return self.name[:DISPLAYED_TEXT]
 
 
 class ReviewComment(models.Model):
@@ -93,8 +104,8 @@ class Review(ReviewComment):
     score = models.PositiveSmallIntegerField(
         'Оценка',
         validators=[
-            MaxValueValidator(10),
-            MinValueValidator(0)
+            MaxValueValidator(MAX_SCORE),
+            MinValueValidator(MIN_SCORE)
         ]
     )
 

@@ -1,10 +1,11 @@
-from django.shortcuts import get_object_or_404
+from math import floor
 
+from django.db.models import Avg, Func
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, permissions, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.filters import SearchFilter, OrderingFilter
-
-from django_filters.rest_framework import DjangoFilterBackend
 
 from users.permissions import AdminOrReadOnly, IsAuthorOrModerOrAdmin
 from api.filter import TitleFilter
@@ -20,8 +21,13 @@ from api.serializers import (
 from reviews.models import Title, Category, Genre, Review
 
 
+class Round(Func):
+    function = 'ROUND'
+    template = '%(function)s(%(expressions)s, 0)'
+
+
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(rating=Round(Avg('reviews__score')))
     permission_classes = (AdminOrReadOnly,)
     http_method_names = ('get', 'post', 'patch', 'delete')
     filter_backends = (DjangoFilterBackend, OrderingFilter)

@@ -67,7 +67,7 @@ class TitleSerializer(serializers.ModelSerializer):
         queryset=Genre.objects.all()
     )
 
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
@@ -80,13 +80,6 @@ class TitleSerializer(serializers.ModelSerializer):
             'genre',
             'category'
         )
-
-    def get_rating(self, obj):
-        reviews = obj.reviews.all()
-        if not reviews.exists():
-            return None
-        total_score = sum(review.score for review in reviews)
-        return total_score // reviews.count()
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -103,18 +96,10 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleReadSerializer(serializers.ModelSerializer):
-    rating = serializers.FloatField(read_only=True)
+    rating = serializers.IntegerField(read_only=True)
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(many=True, read_only=True)
-    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Title
         fields = '__all__'
-
-    def get_rating(self, obj):
-        reviews = obj.reviews.all()
-        if not reviews.exists():
-            return None
-        total_score = sum(review.score for review in reviews)
-        return total_score // reviews.count()
