@@ -1,10 +1,18 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 from .constants import (
     DISPLAYED_TEXT, NAME_MAX_LENGTH, SLUG_MAX_LENGTH, MAX_SCORE, MIN_SCORE
 )
 from users.models import User
+
+
+def validate_year(value):
+    current_year = timezone.now().year
+    if value > current_year:
+        raise ValidationError(f'Год не может быть больше {current_year}!')
 
 
 class Category(models.Model):
@@ -44,10 +52,11 @@ class Genre(models.Model):
 class Title(models.Model):
     name = models.CharField(
         max_length=NAME_MAX_LENGTH,
-        verbose_name='Название Произведения'
+        verbose_name='Название произведения'
     )
-    year = models.PositiveSmallIntegerField(
-        verbose_name='Год издания'
+    year = models.SmallIntegerField(
+        verbose_name='Год издания',
+        validators=[validate_year]
     )
     category = models.ForeignKey(
         Category,
