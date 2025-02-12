@@ -76,9 +76,6 @@ class Title(models.Model):
     def __str__(self):
         return self.name[:DISPLAYED_TEXT]
 
-    def __str__(self):
-        return self.name[:DISPLAYED_TEXT]
-
     def get_genre_list(self):
         return ', '.join([str(genre) for genre in self.genre.all()])
 
