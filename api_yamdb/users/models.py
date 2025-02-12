@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
-from reviews.constants import EMAIL_LENGTH, ROLE_LENGTH
+from .validators import validate_username
+from reviews.constants import EMAIL_MAX_LENGTH, USERNAME_MAX_LENGTH
 
 
 class User(AbstractUser):
@@ -15,8 +15,17 @@ class User(AbstractUser):
         (MODERATOR, 'Модератор'),
     )
 
+    username = models.CharField(
+        'Имя',
+        max_length=USERNAME_MAX_LENGTH,
+        unique=True,
+        validators=(validate_username,)
+    )
+
     email = models.EmailField(
-        'Email', max_length=EMAIL_LENGTH, unique=True
+        'Email',
+        max_length=EMAIL_MAX_LENGTH,
+        unique=True
     )
 
     bio = models.TextField(
@@ -24,12 +33,18 @@ class User(AbstractUser):
         blank=True,
     )
 
-    role = models.CharField('Роль', max_length=ROLE_LENGTH,
-                            choices=CHOISES, default='user')
+    role = models.CharField(
+        'Роль',
+        max_length=len(max([x for x, y in CHOISES], key=len)),
+        choices=CHOISES, default=USER
+    )
 
     class Meta:
 
         ordering = ('role',)
+
+    def __str__(self):
+        return self.username
 
     @property
     def is_moderator(self):
@@ -38,7 +53,3 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         return self.role == User.ADMIN
-
-    @property
-    def is_user(self):
-        return self.role == User.USER
