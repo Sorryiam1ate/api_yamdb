@@ -19,12 +19,9 @@ class Category(models.Model):
     )
 
     class Meta:
-        ordering = ('name',)
-        verbose_name = 'Категория'
+        verbose_name = 'категория'
         verbose_name_plural = 'Категории'
-
-    def __str__(self):
-        return self.name[:DISPLAYED_TEXT]
+        ordering = ('name',)
 
 
 class Genre(models.Model):
@@ -39,12 +36,9 @@ class Genre(models.Model):
     )
 
     class Meta:
-        ordering = ('name',)
-        verbose_name = 'Жанр'
+        verbose_name = 'жанр'
         verbose_name_plural = 'Жанры'
-
-    def __str__(self):
-        return self.name[:DISPLAYED_TEXT]
+        ordering = ('name',)
 
 
 class Title(models.Model):
@@ -58,7 +52,8 @@ class Title(models.Model):
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
-        related_name='titles'
+        related_name='titles',
+        verbose_name='Категория'
     )
     description = models.TextField(
         'Описание',
@@ -68,15 +63,24 @@ class Title(models.Model):
         Genre,
         related_name='titles',
         through='Genre_title',
+        verbose_name='Жанр'
     )
 
     class Meta:
+        verbose_name = 'произведение'
+        verbose_name_plural = 'Произведения'
         ordering = ('name',)
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
     def __str__(self):
         return self.name[:DISPLAYED_TEXT]
+
+    def __str__(self):
+        return self.name[:DISPLAYED_TEXT]
+
+    def get_genre_list(self):
+        return ', '.join([str(genre) for genre in self.genre.all()])
 
 
 class ReviewComment(models.Model):
@@ -116,13 +120,27 @@ class Review(ReviewComment):
                 name='unique_title_author'
             )
         ]
-        verbose_name = 'Отзыв'
-        verbose_name_plural = 'Отзывы'
+
+
+class Comment(models.Model):
+    text = models.TextField('Текст комментария')
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='comments'
+    )
+    review = models.ForeignKey(
+        Review, on_delete=models.CASCADE, related_name='comments'
+    )
+
+    class Meta(ReviewComment.Meta):
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
 
 
 class Comment(ReviewComment):
     review = models.ForeignKey(
-        Review, on_delete=models.CASCADE, related_name='comments'
+        Review, on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Отзыв'
     )
 
     class Meta(ReviewComment.Meta):
@@ -134,10 +152,12 @@ class Genre_title(models.Model):
     genre = models.ForeignKey(
         Genre,
         on_delete=models.CASCADE,
+        verbose_name='Жанр'
     )
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
+        verbose_name='Произведение'
     )
 
     class Meta:

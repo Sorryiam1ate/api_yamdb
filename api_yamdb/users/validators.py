@@ -4,5 +4,5 @@ from reviews.constants import RESTRICTED_NAME
 
 
 def validate_username(value):
-    if value == RESTRICTED_NAME:
+    if value in RESTRICTED_NAME:
         raise ValidationError('Недопустимое имя пользователя!')
