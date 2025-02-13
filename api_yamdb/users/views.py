@@ -6,13 +6,13 @@ from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from rest_framework_simplejwt.tokens import AccessToken
 
 from .models import User
-from .permissions import AdminOnly, OnlyOwnAccountOrAdmins
+from .permissions import AdminOnly
 from .serializers import (
     UserSerializer,
     TokenSerializer,
@@ -25,11 +25,8 @@ from .serializers import (
 def signup(request):
     serializer = SignUpSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    obj, created = User.objects.get_or_create(
-        username=request.data['username'],
-        email=request.data['email']
-    )
-    conformation_code = default_token_generator.make_token(obj)
+    user = serializer.save()
+    conformation_code = default_token_generator.make_token(user)
     send_mail('Your confirmation code!',
               ('Ваш код подтверждения:\n' + conformation_code),
               settings.EMAIL_FOR_AUTH_LETTERS,
@@ -61,7 +58,7 @@ class UsersViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=['get', 'patch'],
-        permission_classes=(OnlyOwnAccountOrAdmins,),
+        permission_classes=(IsAuthenticated,),
         url_path='me'
     )
     def me(self, request):

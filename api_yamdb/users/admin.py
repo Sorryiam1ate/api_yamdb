@@ -84,13 +84,13 @@ class CommentAdmin(admin.ModelAdmin):
     )
     list_filter = (
         'pub_date',
-        'author',
+        'author__username',
     )
     list_editable = (
         'text',
     )
     search_fields = (
-        'author',
+        'author__username',
     )
     list_display_links = (
         'pub_date',
@@ -118,7 +118,7 @@ class TitleAdmin(admin.ModelAdmin):
     list_filter = (
         'name',
         'year',
-        'category',
+        'category__name',
     )
 
     list_editable = (
@@ -128,7 +128,7 @@ class TitleAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
         'year',
-        'category',
+        'category__name',
     )
 
     list_display_links = (
@@ -150,7 +150,7 @@ class ReviewAdmin(admin.ModelAdmin):
 
     list_filter = (
         'text',
-        'author',
+        'author__username',
         'title',
         'score',
         'pub_date'
@@ -162,7 +162,7 @@ class ReviewAdmin(admin.ModelAdmin):
 
     search_fields = (
         'text',
-        'author',
+        'author__username',
         'title',
         'score',
     )
