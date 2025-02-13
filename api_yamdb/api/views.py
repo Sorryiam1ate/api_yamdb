@@ -1,4 +1,5 @@
-from django.db.models import Avg, Func
+from django.db.models import Avg, IntegerField
+from django.db.models.functions import Cast
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, permissions, viewsets
@@ -19,15 +20,10 @@ from api.serializers import (
 from reviews.models import Title, Category, Genre, Review
 
 
-class Round(Func):
-    function = 'ROUND'
-    template = '%(function)s(%(expressions)s, 0)'
-
-
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(
-        rating=Round(Avg('reviews__score'))
-    ).order_by('-id',)
+        rating=Cast(Avg('reviews__score'), IntegerField())
+    ).order_by('-rating',)
     permission_classes = (AdminOrReadOnly,)
     http_method_names = ('get', 'post', 'patch', 'delete')
     filter_backends = (DjangoFilterBackend, OrderingFilter)

@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
-from django.utils import timezone
+from reviews.validators import validate_year
 
 from .constants import (
     DISPLAYED_TEXT, NAME_MAX_LENGTH, SLUG_MAX_LENGTH, MAX_SCORE, MIN_SCORE
@@ -9,44 +9,34 @@ from .constants import (
 from users.models import User
 
 
-def validate_year(value):
-    current_year = timezone.now().year
-    if value > current_year:
-        raise ValidationError(f'Год не может быть больше {current_year}!')
-
-
-class Category(models.Model):
+class CategoryGenre(models.Model):
     name = models.CharField(
         max_length=NAME_MAX_LENGTH,
-        verbose_name='Название Категории'
+        verbose_name='Название'
     )
     slug = models.SlugField(
         unique=True,
-        max_length=SLUG_MAX_LENGTH,
-        verbose_name='Слаг Категории'
+        verbose_name='Слаг'
     )
 
+    class Meta:
+        abstract = True
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+
+class Category(CategoryGenre):
     class Meta:
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
-        ordering = ('name',)
 
 
-class Genre(models.Model):
-    name = models.CharField(
-        max_length=NAME_MAX_LENGTH,
-        verbose_name='Название Жанра'
-    )
-    slug = models.SlugField(
-        unique=True,
-        max_length=SLUG_MAX_LENGTH,
-        verbose_name='Слаг Жанра'
-    )
-
+class Genre(CategoryGenre):
     class Meta:
         verbose_name = 'жанр'
         verbose_name_plural = 'Жанры'
-        ordering = ('name',)
 
 
 class Title(models.Model):
@@ -76,7 +66,7 @@ class Title(models.Model):
     )
 
     class Meta:
-        ordering = ('-id',)
+        ordering = ('-name',)
         verbose_name = 'произведение'
         verbose_name_plural = 'Произведения'
 
@@ -91,7 +81,7 @@ class ReviewComment(models.Model):
     text = models.TextField('Текст отзыва')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE,
-        related_name='%(app_label)s_%(class)s_related'
+        related_name='reviewcomments'
     )
     pub_date = models.DateTimeField(
         'Дата публикации', auto_now_add=True, db_index=True
@@ -153,3 +143,6 @@ class Genre_title(models.Model):
     class Meta:
         verbose_name = 'Жанр_Произведение'
         verbose_name_plural = 'Жанры_Произведения'
+
+    def __str__(self):
+        return self.genre

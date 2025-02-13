@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from rest_framework.validators import UniqueTogetherValidator
+from django.db.models import Avg
 
 from reviews.models import Comment, Review, Title, Category, Genre
 
@@ -16,13 +17,9 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         exclude = ('review',)
         model = Comment
-        read_only_fields = ('review',)
 
 
 class CurrentTitleDefault:
-    """
-    Класс для автоматического подстановки title из URL.
-    """
     requires_context = True
 
     def __call__(self, serializer_field):
@@ -44,7 +41,6 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Review
-        read_only_fields = ('pub_date',)
         validators = [
             UniqueTogetherValidator(
                 queryset=Review.objects.all(),
@@ -63,10 +59,9 @@ class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         many=True,
         slug_field='slug',
-        queryset=Genre.objects.all()
+        queryset=Genre.objects.all(),
+        allow_empty=False
     )
-
-    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
@@ -74,11 +69,17 @@ class TitleSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'year',
-            'rating',
             'description',
             'genre',
             'category'
         )
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        rating = instance.reviews.aggregate(
+            avg_rating=Avg('score'))['avg_rating']
+        data['rating'] = rating if rating is not None else 0
+        return data
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -95,7 +96,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleReadSerializer(serializers.ModelSerializer):
-    rating = serializers.IntegerField(read_only=True)
+    rating = serializers.IntegerField(read_only=True, default=0)
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(many=True, read_only=True)
 
