@@ -12,6 +12,19 @@ from .models import User
 from .validators import validate_username
 
 
+def validate_username_and_email(data):
+    username = User.objects.filter(username=data.get('username')).exists()
+    email = User.objects.filter(email=data.get('email')).exists()
+    if not username and email:
+        raise serializers.ValidationError(
+            'Пользователь с такой почтой '
+            'уже зарегестрирован')
+    if username and not email:
+        raise serializers.ValidationError(
+            'Пользователь с таким именем '
+            'уже зарегестрирован')
+
+
 class SignUpSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         max_length=EMAIL_MAX_LENGTH,
@@ -28,31 +41,14 @@ class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email', 'username')
+        validators = (validate_username_and_email,)
 
     def create(self, data):
-        User(
-            username=data.get('username'),
-            email=data.get('email')
-        ).save()
-
-    def validate(self, data):
-        username = User.objects.filter(username=data.get('username')).exists()
-        email = User.objects.filter(email=data.get('email')).exists()
-        if (
-            not username
-            and email
-        ):
-            raise serializers.ValidationError(
-                'Пользователь с такой почтой '
-                'уже зарегестрирован')
-        if (
-            username
-            and not email
-        ):
-            raise serializers.ValidationError(
-                'Пользователь с таким именем '
-                'уже зарегестрирован')
-        return data
+        user, _ = User.objects.get_or_create(
+            username=data['username'],
+            email=data['email']
+        )
+        return user
 
 
 class TokenSerializer(serializers.ModelSerializer):
@@ -86,7 +82,7 @@ class UserSerializer(serializers.ModelSerializer):
         allow_blank=False,
         validators=(
             validate_username,
-            RegexValidator(regex=r'^[\w.@+-]+\Z')
+            RegexValidator(regex=PATTERN_USERNAME),
         ))
 
     class Meta:
@@ -100,22 +96,4 @@ class UserSerializer(serializers.ModelSerializer):
             'role',
         )
         read_only_fields = ('username',)
-
-    def validate(self, data):
-        username = User.objects.filter(username=data.get('username')).exists()
-        email = User.objects.filter(email=data.get('email')).exists()
-        if (
-            not username
-            and email
-        ):
-            raise serializers.ValidationError(
-                'Пользователь с такой почтой '
-                'уже зарегестрирован')
-        if (
-            username
-            and not email
-        ):
-            raise serializers.ValidationError(
-                'Пользователь с таким именем '
-                'уже зарегестрирован')
-        return data
+        validators = (validate_username_and_email,)

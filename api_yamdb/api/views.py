@@ -1,6 +1,8 @@
 from django.db.models import Avg, IntegerField
 from django.db.models.functions import Cast
 from django.shortcuts import get_object_or_404
+
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, permissions, viewsets
 from rest_framework.pagination import PageNumberPagination
@@ -61,7 +63,10 @@ class GenreViewSet(BaseCategoryGenreViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     http_method_names = ('get', 'post', 'patch', 'delete')
-    permission_classes = (IsAuthorOrModerOrAdmin,)
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        IsAuthorOrModerOrAdmin,
+    )
 
     def get_title(self):
         return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
@@ -79,7 +84,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     http_method_names = ('get', 'post', 'patch', 'delete')
-    permission_classes = (IsAuthorOrModerOrAdmin,)
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        IsAuthorOrModerOrAdmin
+    )
 
     def get_review(self):
         return get_object_or_404(
