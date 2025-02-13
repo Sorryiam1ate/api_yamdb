@@ -1,12 +1,9 @@
-from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.core.exceptions import ValidationError
+from django.db import models
 from reviews.validators import validate_year
-
-from .constants import (
-    DISPLAYED_TEXT, NAME_MAX_LENGTH, SLUG_MAX_LENGTH, MAX_SCORE, MIN_SCORE
-)
 from users.models import User
+
+from .constants import DISPLAYED_TEXT, MAX_SCORE, MIN_SCORE, NAME_MAX_LENGTH
 
 
 class CategoryGenre(models.Model):
@@ -21,7 +18,6 @@ class CategoryGenre(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -31,12 +27,14 @@ class Category(CategoryGenre):
     class Meta:
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
+        ordering = ('name',)
 
 
 class Genre(CategoryGenre):
     class Meta:
         verbose_name = 'жанр'
         verbose_name_plural = 'Жанры'
+        ordering = ('name',)
 
 
 class Title(models.Model):

@@ -2,11 +2,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.validators import RegexValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from reviews.constants import (
-    EMAIL_MAX_LENGTH,
-    PATTERN_USERNAME,
-    USERNAME_MAX_LENGTH
-)
+from reviews.constants import (EMAIL_MAX_LENGTH, PATTERN_USERNAME,
+                               USERNAME_MAX_LENGTH)
 
 from .models import User
 from .validators import validate_username
