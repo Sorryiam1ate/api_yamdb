@@ -7,9 +7,10 @@ colorama==0.4.6
 Django==3.2
 django-filter==23.2
 djangorestframework==3.12.4
-djangorestframework_simplejwt==4.7.2
+djangorestframework-simplejwt==4.7.2
 idna==3.10
 iniconfig==2.0.0
+isort==6.0.0
 packaging==24.2
 pluggy==0.13.1
 py==1.11.0
