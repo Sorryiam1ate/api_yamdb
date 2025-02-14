@@ -70,6 +70,19 @@ python3 manage.py migrate
 python3 manage.py runserver
 ```
 
+
+## Как загрузить данные из csv файлов в базу данных
+```
+Чтобы загрузить данные в любую модель, используйте команду:
+```
+python manage.py import_csv <ModelName> <path_to_csv>
+```
+Например:
+```
+python manage.py import_csv Category ./static/data/categories.csv
+python manage.py import_csv Title ./static/data/titles.csv
+```
+
 ## Примеры запросов
 Документация по всем доступным запросам к API находится по адресу: http://127.0.0.1:8000/redoc/
 
