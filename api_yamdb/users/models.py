@@ -31,6 +31,7 @@ class User(AbstractUser):
     email = models.EmailField(
         'Email',
         max_length=EMAIL_MAX_LENGTH,
+        unique=True,
         blank=True
     )
 
@@ -46,7 +47,8 @@ class User(AbstractUser):
     )
 
     class Meta:
-
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
         ordering = ('role',)
 
     def __str__(self):
@@ -58,4 +60,4 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return bool(self.role == User.ADMIN or self.is_superuser)
+        return self.role == User.ADMIN or self.is_superuser
