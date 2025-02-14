@@ -1,6 +1,6 @@
-import csv
-from django.core.management.base import BaseCommand
 from django.apps import apps
+from django.core.management.base import BaseCommand
+import csv
 
 
 class Command(BaseCommand):
@@ -35,4 +35,4 @@ class Command(BaseCommand):
                 objects_to_create.append(model(**filtered_data))
 
             model.objects.bulk_create(objects_to_create)
-            self.stdout.write(self.style.SUCCESS(f'Импорт в завершён!'))
+            self.stdout.write(self.style.SUCCESS('Импорт в завершён!'))

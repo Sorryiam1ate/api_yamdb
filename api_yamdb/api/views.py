@@ -1,5 +1,3 @@
-from django.db.models import Avg, IntegerField
-from django.db.models.functions import Cast
 from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
