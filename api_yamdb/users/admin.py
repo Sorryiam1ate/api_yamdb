@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from reviews.models import Category, Comment, Genre, Genre_title, Review, Title
 
+from reviews.models import Category, Comment, Genre, Genre_title, Review, Title
 from .models import User
 
 

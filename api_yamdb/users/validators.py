@@ -1,4 +1,5 @@
 from rest_framework.exceptions import ValidationError
+
 from reviews.constants import RESTRICTED_NAME
 
 
