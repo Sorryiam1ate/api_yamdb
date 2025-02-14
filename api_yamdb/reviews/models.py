@@ -18,23 +18,22 @@ class CategoryGenre(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
 
 
 class Category(CategoryGenre):
-    class Meta:
+    class Meta(CategoryGenre.Meta):
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
-        ordering = ('name',)
 
 
 class Genre(CategoryGenre):
-    class Meta:
+    class Meta(CategoryGenre.Meta):
         verbose_name = 'жанр'
         verbose_name_plural = 'Жанры'
-        ordering = ('name',)
 
 
 class Title(models.Model):
