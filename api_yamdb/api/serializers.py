@@ -1,8 +1,10 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
+
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from rest_framework.validators import UniqueTogetherValidator
+
 from reviews.models import Category, Comment, Genre, Review, Title
 
 
@@ -74,11 +76,7 @@ class TitleSerializer(serializers.ModelSerializer):
         )
 
     def to_representation(self, instance):
-        data = super().to_representation(instance)
-        rating = instance.reviews.aggregate(
-            avg_rating=Avg('score'))['avg_rating']
-        data['rating'] = rating if rating is not None else 0
-        return data
+        return TitleReadSerializer(instance).data
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -95,10 +93,14 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleReadSerializer(serializers.ModelSerializer):
-    rating = serializers.IntegerField(read_only=True, default=0)
+    rating = serializers.SerializerMethodField()
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(many=True, read_only=True)
 
     class Meta:
         model = Title
         fields = '__all__'
+
+    def get_rating(self, obj):
+        rating = obj.reviews.aggregate(avg_rating=Avg('score'))['avg_rating']
+        return rating if rating is not None else None

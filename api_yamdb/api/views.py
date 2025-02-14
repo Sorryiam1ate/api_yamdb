@@ -16,8 +16,7 @@ from users.permissions import AdminOrReadOnly, IsAuthorOrModerOrAdmin
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(
-        rating=Cast(Avg('reviews__score'), IntegerField())
-    ).order_by('-rating',)
+        rating=Avg('reviews__score')).order_by('-rating')
     permission_classes = (AdminOrReadOnly,)
     http_method_names = ('get', 'post', 'patch', 'delete')
     filter_backends = (DjangoFilterBackend, OrderingFilter)
