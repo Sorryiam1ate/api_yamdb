@@ -1,7 +1,8 @@
-from api.views import (CategoryViewSet, CommentViewSet, GenreViewSet,
-                       ReviewViewSet, TitleViewSet)
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+
+from api.views import (CategoryViewSet, CommentViewSet, GenreViewSet,
+                       ReviewViewSet, TitleViewSet)
 
 router_v1 = DefaultRouter()
 router_v1.register('categories', CategoryViewSet, basename='category')

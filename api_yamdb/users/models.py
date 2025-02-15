@@ -1,12 +1,9 @@
-from django.db import models
-from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
+from django.db import models
+from reviews.constants import (EMAIL_MAX_LENGTH, PATTERN_USERNAME,
+                               USERNAME_MAX_LENGTH)
 
-from reviews.constants import (
-    EMAIL_MAX_LENGTH,
-    PATTERN_USERNAME,
-    USERNAME_MAX_LENGTH,
-)
 from users.validators import validate_username
 
 
