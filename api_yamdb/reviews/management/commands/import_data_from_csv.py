@@ -64,7 +64,7 @@ class Command(BaseCommand):
 
                         except related_model.DoesNotExist:
                             self.stderr.write(self.style.ERROR(
-                                f'Объект {related_model.__name__} с ID {value} не найден'
+                                f'Объект {related_model.__name__} не найден'
                             ))
                             continue
 
